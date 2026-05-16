@@ -1,6 +1,7 @@
 <Solution>
   <Project Path="Waha.AppHost/Waha.AppHost.csproj" />
   <Project Path="Waha.Hosting/Waha.Hosting.csproj" />
+  <Project Path="Waha.McpServer/Waha.McpServer.csproj" />
   <Project Path="Waha.ServiceDefaults/Waha.ServiceDefaults.csproj" />
   <Project Path="Waha.WebApi/Waha.WebApi.csproj" />
 </Solution>

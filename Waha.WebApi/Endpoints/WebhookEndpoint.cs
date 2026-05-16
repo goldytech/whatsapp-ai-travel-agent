@@ -19,25 +19,32 @@ public static class WebhookEndpoint
 
     private static async Task<IResult> HandleWebhookAsync(
         WahaWebhookPayload payload,
-        MessageRouter router,
+        AgentChatService agentChat,
         ILoggerFactory loggerFactory,
         CancellationToken ct)
     {
         var logger = loggerFactory.CreateLogger(nameof(WebhookEndpoint));
         logger.LogDebug("Received WAHA event: {Event} from session: {Session}", payload.Event, payload.Session);
 
+        if (payload.Event != "message")
+            return Results.Ok();
+
+        var message = payload.Payload?.Deserialize<WahaMessage>(JsonSerializerOptions.Web);
+        if (message is null || message.FromMe || string.IsNullOrWhiteSpace(message.Body))
+            return Results.Ok();
+
         // Fire-and-forget with error isolation — webhook must return 200 quickly.
-        // Use CancellationToken.None so outbound WAHA calls aren't cancelled when
-        // the inbound HTTP request completes (which would cancel the request CT).
+        // Use CancellationToken.None so outbound calls aren't cancelled when the
+        // inbound HTTP request completes.
         _ = Task.Run(async () =>
         {
             try
             {
-                await router.RouteAsync(payload, CancellationToken.None).ConfigureAwait(false);
+                await agentChat.HandleAsync(message.From, message.Body, CancellationToken.None).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Error handling WAHA event: {Event}", payload.Event);
+                logger.LogError(ex, "Error handling WAHA message from {From}", message.From);
             }
         }, CancellationToken.None);
 

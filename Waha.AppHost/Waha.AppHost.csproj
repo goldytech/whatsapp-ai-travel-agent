@@ -2,6 +2,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Waha.WebApi\Waha.WebApi.csproj" />
+      <ProjectReference Include="..\Waha.McpServer\Waha.McpServer.csproj" />
       <!-- IsAspireProjectResource=false: treat as a library, not an orchestrated service -->
       <ProjectReference Include="..\Waha.Hosting\Waha.Hosting.csproj" IsAspireProjectResource="false" />
     </ItemGroup>

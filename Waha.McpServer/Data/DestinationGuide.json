@@ -1,0 +1,157 @@
+[
+  {
+    "destination": "Goa",
+    "region": "Western India",
+    "bestMonths": [ "November", "December", "January", "February" ],
+    "peakSeason": "December–January",
+    "offSeason": "June–September",
+    "avgBudgetPerDayINR": 3500,
+    "weather": {
+      "winterTemp": "20–32°C",
+      "summerTemp": "27–35°C",
+      "monsoonRainfall": "Heavy (Jun–Sep)"
+    },
+    "topAttractions": [
+      "Baga & Calangute Beach",
+      "Old Goa Basilica of Bom Jesus (UNESCO)",
+      "Dudhsagar Waterfalls",
+      "Anjuna Flea Market",
+      "Fort Aguada"
+    ],
+    "cuisine": [ "Goan fish curry", "Prawn balchão", "Bebinca dessert", "Feni (local cashew spirit)" ],
+    "visaPolicy": {
+      "indianNationals": "No visa required",
+      "foreignNationals": "e-Tourist Visa (India) required for most nationalities"
+    },
+    "packingEssentials": {
+      "clothing": [ "Light cotton clothes", "Swimwear", "Beach cover-up", "Evening casuals" ],
+      "gear": [ "Sunscreen SPF 50+", "Sunglasses", "Beach bag", "Flip flops" ],
+      "documents": [ "ID proof / passport", "Hotel bookings", "Return tickets" ],
+      "health": [ "Stay hydrated", "Avoid tap water", "Carry anti-diarrheal tablets" ]
+    }
+  },
+  {
+    "destination": "Manali, Himachal Pradesh",
+    "region": "Northern India – Himalayas",
+    "bestMonths": [ "December", "January", "February", "March", "May", "June" ],
+    "peakSeason": "December–February (snow), May–June (summer)",
+    "offSeason": "October–November (pre-snow), July–September (monsoon, landslides)",
+    "avgBudgetPerDayINR": 4000,
+    "weather": {
+      "winterTemp": "-10–5°C",
+      "summerTemp": "10–25°C",
+      "monsoonRainfall": "Moderate (Jul–Sep)"
+    },
+    "topAttractions": [
+      "Rohtang Pass (snow point)",
+      "Solang Valley (skiing & paragliding)",
+      "Hadimba Devi Temple",
+      "Old Manali cafes & markets",
+      "Naggar Castle & Roerich Art Gallery"
+    ],
+    "cuisine": [ "Siddu (stuffed bread)", "Trout fish", "Chha gosht (marinated lamb)", "Thupka (noodle soup)" ],
+    "visaPolicy": {
+      "indianNationals": "No visa required. Inner Line Permit needed for Spiti/Lahaul.",
+      "foreignNationals": "Tourist visa (India). Restricted Area Permit for some zones."
+    },
+    "packingEssentials": {
+      "clothing": [ "Thermal inners (top & bottom)", "Heavy winter jacket", "Woollen cap, gloves, socks", "Snow boots" ],
+      "gear": [ "Sunscreen SPF 50+", "Lip balm", "Goggles / sunglasses", "Waterproof rucksack" ],
+      "documents": [ "ID proof / passport", "Hotel bookings", "Return tickets" ],
+      "health": [ "Acclimatize slowly (altitude 2050m)", "Avoid alcohol on day 1", "Carry Diamox if prone to altitude sickness", "Stay hydrated" ]
+    }
+  },
+  {
+    "destination": "Kerala",
+    "region": "South India",
+    "bestMonths": [ "September", "October", "November", "December", "January", "February", "March" ],
+    "peakSeason": "October–March",
+    "offSeason": "June–August (monsoon – Ayurvedic peak season!)",
+    "avgBudgetPerDayINR": 4500,
+    "weather": {
+      "winterTemp": "22–32°C",
+      "summerTemp": "28–35°C",
+      "monsoonRainfall": "Heavy (Jun–Aug)"
+    },
+    "topAttractions": [
+      "Alleppey Backwaters (houseboat)",
+      "Munnar Tea Estates",
+      "Periyar Wildlife Sanctuary",
+      "Kovalam & Varkala Beaches",
+      "Fort Kochi – Chinese Fishing Nets"
+    ],
+    "cuisine": [ "Appam with stew", "Kerala prawn curry", "Puttu & kadala", "Banana leaf meals", "Toddy (coconut palm wine)" ],
+    "visaPolicy": {
+      "indianNationals": "No visa required",
+      "foreignNationals": "e-Tourist Visa (India) required for most nationalities"
+    },
+    "packingEssentials": {
+      "clothing": [ "Lightweight cotton clothes", "Modest clothes for temples", "Light rain jacket (Oct–Nov)", "Swimwear for beaches" ],
+      "gear": [ "Insect repellent", "Sunscreen", "Good walking shoes", "Waterproof bag" ],
+      "documents": [ "ID proof / passport", "Hotel bookings", "Return tickets" ],
+      "health": [ "Stay hydrated", "Mosquito precautions in backwater areas", "Carry stomach meds" ]
+    }
+  },
+  {
+    "destination": "Jaipur, Jodhpur, Udaipur",
+    "region": "Rajasthan, Western India",
+    "bestMonths": [ "October", "November", "December", "January", "February", "March" ],
+    "peakSeason": "November–February",
+    "offSeason": "May–August (extreme heat 40–48°C)",
+    "avgBudgetPerDayINR": 4500,
+    "weather": {
+      "winterTemp": "8–25°C",
+      "summerTemp": "30–48°C",
+      "monsoonRainfall": "Low (Jul–Aug)"
+    },
+    "topAttractions": [
+      "Amber Fort, Jaipur (Pink City)",
+      "Mehrangarh Fort, Jodhpur (Blue City)",
+      "City Palace & Lake Pichola, Udaipur (Lake City)",
+      "Sam Sand Dunes – camel safari",
+      "Jaisalmer Golden Fort (optional extension)"
+    ],
+    "cuisine": [ "Dal baati churma", "Laal maas (spicy mutton)", "Ghevar (sweet)", "Bajre ki roti", "Rajasthani thali" ],
+    "visaPolicy": {
+      "indianNationals": "No visa required",
+      "foreignNationals": "e-Tourist Visa (India) required for most nationalities"
+    },
+    "packingEssentials": {
+      "clothing": [ "Light cotton (day)", "Light jacket or shawl (winter evenings – can get cold)", "Comfortable walking shoes (cobblestone forts!)" ],
+      "gear": [ "Sunscreen SPF 50+", "Sunglasses", "Scarf (dust protection)", "Water bottle" ],
+      "documents": [ "ID proof / passport", "Hotel bookings", "Return tickets", "Camera permission passes" ],
+      "health": [ "Stay hydrated (dry climate)", "Carry ORS sachets", "Use sunscreen diligently" ]
+    }
+  },
+  {
+    "destination": "Port Blair & Havelock Island",
+    "region": "Andaman & Nicobar Islands",
+    "bestMonths": [ "October", "November", "December", "January", "February", "March", "April" ],
+    "peakSeason": "December–February",
+    "offSeason": "May–September (monsoon, rough seas – ferries affected)",
+    "avgBudgetPerDayINR": 6000,
+    "weather": {
+      "winterTemp": "22–30°C",
+      "summerTemp": "25–32°C",
+      "monsoonRainfall": "Very Heavy (May–Sep)"
+    },
+    "topAttractions": [
+      "Radhanagar Beach, Havelock (Asia's Best)",
+      "Elephant Beach snorkeling",
+      "Cellular Jail, Port Blair",
+      "Ross Island – British ruins",
+      "Neil Island Natural Bridge"
+    ],
+    "cuisine": [ "Andaman lobster", "Red snapper curry", "Coconut prawn", "Grilled barracuda", "Fresh seafood platters" ],
+    "visaPolicy": {
+      "indianNationals": "No visa needed. RAP (Restricted Area Permit) needed for some outer islands.",
+      "foreignNationals": "Tourist visa + RAP required. Foreigners restricted from some islands."
+    },
+    "packingEssentials": {
+      "clothing": [ "Light cotton or quick-dry clothes", "Swimwear (multiple sets)", "Water shoes / reef sandals", "Light rain jacket (post-monsoon)" ],
+      "gear": [ "Underwater camera / GoPro", "Snorkel mask (bring own for comfort)", "Sunscreen (reef-safe!)", "Insect repellent" ],
+      "documents": [ "ID proof / passport", "Hotel bookings", "Flight tickets (limited airlines)", "RAP if applicable" ],
+      "health": [ "Sea-sickness tablets if prone", "Waterproof sunscreen essential", "Rehydration salts", "Anti-fungal cream (high humidity)" ]
+    }
+  }
+]

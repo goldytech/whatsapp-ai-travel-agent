@@ -1,0 +1,38 @@
+{
+  "name": "Royal Journeys",
+  "tagline": "Your Journey, Our Passion",
+  "description": "Royal Journeys is a premium travel agency specialising in luxury, heritage, and adventure tours across India. With over 15 years of experience, we have crafted memorable vacations for thousands of happy travellers.",
+  "contact": {
+    "phone": "+91-98765-43210",
+    "whatsapp": "+91-98765-43210",
+    "email": "bookings@royaljourneys.in",
+    "website": "www.royaljourneys.in",
+    "office": "302, Heritage Plaza, MG Road, Pune – 411001",
+    "officeHours": "Monday–Saturday: 9:30 AM – 6:30 PM IST"
+  },
+  "social": {
+    "instagram": "@royaljourneystours",
+    "facebook": "RoyalJourneysTours"
+  },
+  "payment": {
+    "bankName": "HDFC Bank",
+    "accountName": "Royal Journeys Pvt Ltd",
+    "accountNumber": "XXXX-XXXX-XXXX-1234",
+    "ifsc": "HDFC0001234",
+    "upiId": "royaljourneys@ybl"
+  },
+  "cancellationPolicy": {
+    "tiers": [
+      { "daysBeforeDeparture": 30, "refundPercent": 90, "label": "30+ days before" },
+      { "daysBeforeDeparture": 15, "refundPercent": 50, "label": "15–29 days before" },
+      { "daysBeforeDeparture": 7, "refundPercent": 25, "label": "7–14 days before" },
+      { "daysBeforeDeparture": 0, "refundPercent": 0, "label": "Less than 7 days / no-show" }
+    ],
+    "note": "All cancellations must be submitted in writing to bookings@royaljourneys.in"
+  },
+  "groupDiscountTiers": [
+    { "minPax": 5, "maxPax": 9, "discountPercent": 5 },
+    { "minPax": 10, "maxPax": 19, "discountPercent": 10 },
+    { "minPax": 20, "maxPax": 999, "discountPercent": 15 }
+  ]
+}

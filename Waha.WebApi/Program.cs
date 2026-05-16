@@ -8,18 +8,32 @@ var builder = WebApplication.CreateBuilder(args);
 builder.AddServiceDefaults();
 
 // ─── WAHA HTTP Client ─────────────────────────────────────────────────────────
-// Uses Aspire service discovery: services__waha__http__0 is injected by AppHost
 builder.Services.AddHttpClient<WahaApiClient>(client =>
 {
-    client.BaseAddress = new Uri("http://waha");   // Aspire service discovery name
+    client.BaseAddress = new Uri("http://waha");
     var apiKey = builder.Configuration["WAHA_API_KEY"] ?? string.Empty;
     client.DefaultRequestHeaders.Add("X-Api-Key", apiKey);
 });
 
-// ─── Bot Handlers ─────────────────────────────────────────────────────────────
+// ─── MCP Server HTTP Client (Aspire service discovery) ────────────────────────
+builder.Services.AddHttpClient("mcpserver", client =>
+{
+    client.BaseAddress = new Uri("http://mcpserver");
+});
+
+// ─── Azure OpenAI Chat Client ─────────────────────────────────────────────────
+builder.AddAzureChatCompletionsClient(connectionName: "ai-foundry")
+    .AddChatClient("gpt-5.4-mini");
+
+// ─── AI Agent Services ────────────────────────────────────────────────────────
+builder.Services.AddSingleton<McpClientProvider>();
+builder.Services.AddSingleton<AgentSessionStore>();
+builder.Services.AddSingleton<TravelAgentFactory>();
+builder.Services.AddScoped<AgentChatService>();
+
+// ─── Bot Handlers (used by scheduler for reminders/post-trip) ─────────────────
 builder.Services.AddScoped<TravelBotHandler>();
 builder.Services.AddScoped<FeedbackHandler>();
-builder.Services.AddScoped<MessageRouter>();
 
 // ─── Background Services ──────────────────────────────────────────────────────
 builder.Services.AddSingleton<SchedulerService>();

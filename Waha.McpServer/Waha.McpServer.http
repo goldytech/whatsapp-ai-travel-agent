@@ -1,0 +1,6 @@
+@Waha.McpServer_HostAddress = http://localhost:5282
+
+GET {{Waha.McpServer_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

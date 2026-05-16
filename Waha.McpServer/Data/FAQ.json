@@ -1,0 +1,91 @@
+[
+  {
+    "topic": "cancellation",
+    "questions": [
+      {
+        "q": "What is your cancellation policy?",
+        "a": "Royal Journeys offers a fair tiered cancellation policy:\n• 30+ days before departure: 90% refund (10% admin fee retained)\n• 15–29 days before departure: 50% refund\n• 7–14 days before departure: 25% refund\n• Less than 7 days / no-show: No refund\n\nAll cancellation requests must be submitted in writing to bookings@royaljourneys.in"
+      },
+      {
+        "q": "Can I reschedule my tour instead of cancelling?",
+        "a": "Yes! If you reschedule at least 30 days before departure, we charge a flat ₹1,500 rescheduling fee per person. Rescheduling within 30 days is treated as a cancellation and a fresh booking."
+      },
+      {
+        "q": "What if Royal Journeys cancels the tour?",
+        "a": "If we cancel a tour due to unforeseen circumstances (natural disaster, government advisory, insufficient group size), you get a 100% refund within 7 working days OR a free reschedule with no penalty."
+      }
+    ]
+  },
+  {
+    "topic": "payment",
+    "questions": [
+      {
+        "q": "How much deposit do I need to pay to confirm a booking?",
+        "a": "A 25% non-refundable deposit is required to confirm your booking. The remaining 75% balance is due 30 days before departure."
+      },
+      {
+        "q": "What payment methods do you accept?",
+        "a": "We accept:\n• NEFT / IMPS bank transfer\n• UPI (PhonePe, GPay, Paytm) – ID: royaljourneys@ybl\n• Credit/debit card via our secure payment link\n• Cheque for full payment (30+ days before departure only)"
+      },
+      {
+        "q": "Can I pay in EMI?",
+        "a": "Yes, EMI is available on credit cards (3/6/9 months) through our payment gateway. A processing fee of 2% applies for EMI options."
+      },
+      {
+        "q": "Will I get a receipt / invoice?",
+        "a": "Yes. A GST invoice is issued within 24 hours of receiving your payment. All bookings come with a booking confirmation document listing all inclusions."
+      }
+    ]
+  },
+  {
+    "topic": "health",
+    "questions": [
+      {
+        "q": "Are vaccinations required for travel?",
+        "a": "No specific vaccinations are required for domestic India tours. However, we recommend being up to date on routine vaccinations. For Andaman trips, anti-malarial precautions are advised for some remote areas."
+      },
+      {
+        "q": "Is travel insurance mandatory?",
+        "a": "Travel insurance is strongly recommended but not mandatory. It covers trip cancellation, medical emergencies, and lost baggage. We can arrange a policy for approximately ₹500–800 per person per trip."
+      },
+      {
+        "q": "What if I fall sick during the tour?",
+        "a": "Our tour escort will assist you in finding medical help immediately. If you have travel insurance, most expenses are covered. We have tie-ups with clinics in all our tour destinations."
+      },
+      {
+        "q": "Are your tours suitable for senior citizens?",
+        "a": "Most of our tours are suitable for seniors aged 60–75 with moderate fitness. For Manali (high altitude) and adventure-heavy tours, we recommend a doctor's clearance. Goa, Kerala, and Rajasthan are very senior-friendly."
+      }
+    ]
+  },
+  {
+    "topic": "documents",
+    "questions": [
+      {
+        "q": "What documents do I need to carry?",
+        "a": "• Original government-issued photo ID (Aadhar, Passport, Voter ID, or Driving License)\n• Booking confirmation email from Royal Journeys\n• Airline / train tickets\n• Travel insurance policy document (if purchased)\n• Passport-size photos (2 copies) – needed for some monument permits"
+      },
+      {
+        "q": "Is a passport required for domestic tours?",
+        "a": "A passport is not required for domestic India tours. A valid Aadhar card or Voter ID is sufficient."
+      },
+      {
+        "q": "Do I need a permit for Andaman?",
+        "a": "Indian nationals do not need a permit for Port Blair, Havelock, and Neil Island. A Restricted Area Permit (RAP) is required only for outer tribal islands, which we arrange if your itinerary includes them."
+      }
+    ]
+  },
+  {
+    "topic": "grouptravel",
+    "questions": [
+      {
+        "q": "Can you arrange custom tours for large groups?",
+        "a": "Absolutely! Royal Journeys specialises in corporate outings, school trips, family reunions, and wedding groups. For groups of 10+, we offer custom itineraries, dedicated tour managers, and special group pricing. Contact us for a tailored quote."
+      },
+      {
+        "q": "Is there a discount for group bookings?",
+        "a": "Yes:\n• 5–9 pax: 5% group discount\n• 10–19 pax: 10% group discount\n• 20+ pax: 15% group discount + complimentary tour manager\n\nGroup discounts cannot be combined with other promotions."
+      }
+    ]
+  }
+]

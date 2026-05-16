@@ -1,0 +1,51 @@
+[
+  {
+    "id": "PROMO-EARLYBIRD-2026",
+    "title": "Early Bird 2026 – Save 10%",
+    "description": "Book any 2026 tour at least 90 days in advance and save 10% on the base tour price.",
+    "discountPercent": 10,
+    "type": "EarlyBird",
+    "validFrom": "2025-06-01",
+    "validUntil": "2025-12-31",
+    "applicableTours": [ "GOA-DEC", "MANALI-WINTER", "KERALA-BACKWATERS", "RAJASTHAN-ROYAL", "ANDAMAN-PARADISE" ],
+    "conditions": "Minimum 90-day advance booking. Non-refundable deposit of 25% required at booking.",
+    "promoCode": "EARLY2026"
+  },
+  {
+    "id": "PROMO-HONEYMOON",
+    "title": "Honeymoon Special – Complimentary Upgrade",
+    "description": "Honeymooners get a free room upgrade, flower decoration, and a special candlelight dinner on arrival night.",
+    "discountPercent": 0,
+    "type": "Complimentary",
+    "freeAdd": "Room upgrade + flower decoration + candlelight dinner (value ₹3500)",
+    "validFrom": "2025-01-01",
+    "validUntil": "2026-12-31",
+    "applicableTours": [ "GOA-DEC", "KERALA-BACKWATERS", "ANDAMAN-PARADISE" ],
+    "conditions": "Must mention honeymoon at time of booking. Copy of marriage certificate required.",
+    "promoCode": "HONEYMOON"
+  },
+  {
+    "id": "PROMO-FAMILY4",
+    "title": "Family of 4+ – Child Discount",
+    "description": "Travelling with children (5–11 years)? Get 30% off for each child on twin-sharing basis.",
+    "discountPercent": 30,
+    "appliesTo": "Children aged 5–11 years",
+    "type": "FamilyDiscount",
+    "validFrom": "2025-01-01",
+    "validUntil": "2026-12-31",
+    "applicableTours": [ "GOA-DEC", "MANALI-WINTER", "KERALA-BACKWATERS", "RAJASTHAN-ROYAL", "ANDAMAN-PARADISE" ],
+    "conditions": "Minimum 2 adults required. Children under 5 travel free (sharing bed with parents). Standard child rate applies without this promo."
+  },
+  {
+    "id": "PROMO-LOYALTYRETURN",
+    "title": "Royal Loyalist – Returning Customer Discount",
+    "description": "Travelled with Royal Journeys before? Enjoy an exclusive 7% loyalty discount on your next booking.",
+    "discountPercent": 7,
+    "type": "Loyalty",
+    "validFrom": "2025-01-01",
+    "validUntil": "2026-12-31",
+    "applicableTours": [ "GOA-DEC", "MANALI-WINTER", "KERALA-BACKWATERS", "RAJASTHAN-ROYAL", "ANDAMAN-PARADISE" ],
+    "conditions": "Must have travelled with Royal Journeys within the last 2 years. Booking must be made directly with us.",
+    "promoCode": "LOYALIST7"
+  }
+]
