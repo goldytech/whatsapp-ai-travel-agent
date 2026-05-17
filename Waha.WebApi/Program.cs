@@ -8,22 +8,18 @@ var builder = WebApplication.CreateBuilder(args);
 builder.AddServiceDefaults();
 
 // ─── WAHA HTTP Client ─────────────────────────────────────────────────────────
-// WAHA's sendText waits for WhatsApp delivery (can take >10s), so we override
-// Aspire's default 10s per-attempt timeout with a generous custom pipeline.
+// WAHA's sendText waits for WhatsApp delivery (can take >10s), so we remove
+// Aspire's default Polly pipeline and use a plain 2-minute client timeout.
+// Retries are intentionally omitted to avoid duplicate WhatsApp messages.
 #pragma warning disable EXTEXP0001
 builder.Services.AddHttpClient<WahaApiClient>(client =>
 {
     client.BaseAddress = new Uri("http://waha");
     var apiKey = builder.Configuration["WAHA_API_KEY"] ?? string.Empty;
     client.DefaultRequestHeaders.Add("X-Api-Key", apiKey);
+    client.Timeout = TimeSpan.FromMinutes(2);
 })
-.RemoveAllResilienceHandlers()
-.AddStandardResilienceHandler(options =>
-{
-    options.AttemptTimeout.Timeout = TimeSpan.FromSeconds(90);
-    options.TotalRequestTimeout.Timeout = TimeSpan.FromMinutes(3);
-    options.Retry.MaxRetryAttempts = 2;
-});
+.RemoveAllResilienceHandlers();
 
 // ─── MCP Server HTTP Client (Aspire service discovery) ────────────────────────
 // MCP StreamableHttp holds long-lived SSE connections during multi-turn AI
