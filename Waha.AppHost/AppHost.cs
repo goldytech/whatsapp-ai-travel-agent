@@ -1,3 +1,5 @@
+using Projects;
+
 var builder = DistributedApplication.CreateBuilder(args);
 
 // ─── WAHA Credentials ─────────────────────────────────────────────────────────
@@ -15,7 +17,7 @@ var wahaEndpoint = waha.Resource.PrimaryEndpoint;
 // ─── MCP Server ───────────────────────────────────────────────────────────────
 // Hosts all 18 Royal Journeys MCP tools (tour search, booking, destination, etc.)
 // Starts independently — no dependency on WAHA
-var mcpServer = builder.AddProject<Projects.Waha_McpServer>("mcpserver");
+var mcpServer = builder.AddProject<Waha_McpServer>("mcpserver");
 
 // ─── Azure AI Foundry connection ──────────────────────────────────────────────
 // Connection string stored in user-secrets (already set from previous session):
@@ -24,7 +26,7 @@ var aiFoundry = builder.AddConnectionString("ai-foundry");
 
 // ─── Webhook WebApi ───────────────────────────────────────────────────────────
 // Dependency chain: waha + mcpServer → webhookApi → devTunnel (no circular deps)
-var webhookApi = builder.AddProject<Projects.Waha_WebApi>("webhook")
+var webhookApi = builder.AddProject<Waha_WebApi>("webhook")
     .WithReference(wahaEndpoint)
     .WithReference(mcpServer)
     .WithReference(aiFoundry)

@@ -1,7 +1,7 @@
-namespace Waha.McpServer.Services;
-
 using System.Collections.Concurrent;
 using Waha.McpServer.Models;
+
+namespace Waha.McpServer.Services;
 
 public class BookingInquiryService
 {

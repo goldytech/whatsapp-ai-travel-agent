@@ -1,5 +1,4 @@
 using ModelContextProtocol.Protocol;
-using ModelContextProtocol.Server;
 using Waha.McpServer.Resources;
 using Waha.McpServer.Services;
 using Waha.McpServer.Tools;

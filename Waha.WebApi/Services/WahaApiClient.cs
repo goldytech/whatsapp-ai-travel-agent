@@ -42,7 +42,7 @@ public sealed class WahaApiClient(
 
     /// <summary>
     /// Checks session status and starts it if STOPPED or FAILED.
-    /// Safe to call when session is already WORKING — returns immediately.
+    /// Safe to call when the session is already WORKING — returns immediately.
     /// </summary>
     public async Task EnsureSessionWorkingAsync(CancellationToken ct = default)
     {
@@ -50,7 +50,7 @@ public sealed class WahaApiClient(
         if (!response.IsSuccessStatusCode) return;
 
         var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
-        using var doc = System.Text.Json.JsonDocument.Parse(body);
+        using var doc = JsonDocument.Parse(body);
         var status = doc.RootElement.GetProperty("status").GetString();
 
         if (status is "WORKING" or "STARTING")

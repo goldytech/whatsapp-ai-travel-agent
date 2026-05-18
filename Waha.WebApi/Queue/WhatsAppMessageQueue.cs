@@ -1,5 +1,4 @@
 using System.Threading.Channels;
-using Waha.WebApi.Services;
 
 namespace Waha.WebApi.Queue;
 

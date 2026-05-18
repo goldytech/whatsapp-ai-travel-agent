@@ -1,37 +1,28 @@
 using Waha.WebApi.Endpoints;
-using Waha.WebApi.Handlers;
 using Waha.WebApi.Queue;
 using Waha.WebApi.Scheduling;
-using Waha.WebApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
 
 // ─── WAHA HTTP Client ─────────────────────────────────────────────────────────
-// WAHA's sendText waits for WhatsApp delivery (can take >10s), so we remove
-// Aspire's default Polly pipeline and use a plain 2-minute client timeout.
-// Retries are intentionally omitted to avoid duplicate WhatsApp messages.
-#pragma warning disable EXTEXP0001
+// Resilience (retry=0, 5min total, circuit breaker) is set globally in ServiceDefaults.
+// Retries are intentionally disabled there to avoid duplicate WhatsApp messages.
 builder.Services.AddHttpClient<WahaApiClient>(client =>
 {
     client.BaseAddress = new Uri("http://waha");
     var apiKey = builder.Configuration["WAHA_API_KEY"] ?? string.Empty;
     client.DefaultRequestHeaders.Add("X-Api-Key", apiKey);
-    client.Timeout = TimeSpan.FromMinutes(2);
-})
-.RemoveAllResilienceHandlers();
+});
 
 // ─── MCP Server HTTP Client (Aspire service discovery) ────────────────────────
-// MCP StreamableHttp holds long-lived SSE connections during multi-turn AI
-// conversations — remove standard resilience so no per-attempt timeout applies.
+// MCP StreamableHttp uses short-lived request/response cycles per tool call —
+// the 3-min AttemptTimeout from ServiceDefaults is sufficient.
 builder.Services.AddHttpClient("mcpserver", client =>
 {
     client.BaseAddress = new Uri("http://mcpserver");
-    client.Timeout = TimeSpan.FromMinutes(10);
-})
-.RemoveAllResilienceHandlers();
-#pragma warning restore EXTEXP0001
+});
 
 // ─── Azure OpenAI Chat Client ─────────────────────────────────────────────────
 builder.AddAzureChatCompletionsClient(connectionName: "ai-foundry")
@@ -58,7 +49,7 @@ builder.Services.AddHostedService(sp => sp.GetRequiredService<WebhookRegistratio
 // ─── JSON serialisation ───────────────────────────────────────────────────────
 builder.Services.ConfigureHttpJsonOptions(options =>
 {
-    options.SerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+    options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
 });
 
 var app = builder.Build();

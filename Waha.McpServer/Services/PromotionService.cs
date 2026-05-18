@@ -1,7 +1,7 @@
-namespace Waha.McpServer.Services;
-
 using System.Text.Json;
 using Waha.McpServer.Models;
+
+namespace Waha.McpServer.Services;
 
 public class PromotionService
 {

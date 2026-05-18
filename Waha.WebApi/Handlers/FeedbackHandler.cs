@@ -1,3 +1,5 @@
+using System.Collections.Concurrent;
+
 namespace Waha.WebApi.Handlers;
 
 public sealed class FeedbackHandler(
@@ -8,7 +10,7 @@ public sealed class FeedbackHandler(
 
     // Tracks chatIds that have been shown the rating menu and are awaiting a 1-5 reply.
     // WAHA free (WEBJS) does not support native polls, so we use a text-based numbered menu.
-    private readonly System.Collections.Concurrent.ConcurrentDictionary<string, bool> _pendingFeedback = new();
+    private readonly ConcurrentDictionary<string, bool> _pendingFeedback = new();
 
     public bool IsPendingFeedback(string chatId) => _pendingFeedback.TryGetValue(chatId, out _);
 
@@ -61,7 +63,7 @@ public sealed class FeedbackHandler(
         if (payload.Payload is null)
             return;
 
-        var vote = payload.Payload.Value.Deserialize<WahaPollVote>(System.Text.Json.JsonSerializerOptions.Web);
+        var vote = payload.Payload.Value.Deserialize<WahaPollVote>(JsonSerializerOptions.Web);
         if (vote is null)
             return;
 

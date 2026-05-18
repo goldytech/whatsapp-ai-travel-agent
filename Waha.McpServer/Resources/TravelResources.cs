@@ -1,14 +1,13 @@
-namespace Waha.McpServer.Resources;
-
-using System.Text.Json;
 using ModelContextProtocol.Server;
 using Waha.McpServer.Services;
+
+namespace Waha.McpServer.Resources;
 
 [McpServerResourceType]
 public class TravelResources(TourCatalogService catalog, DestinationService destinationService, PolicyService policyService)
 {
     [McpServerResource(UriTemplate = "tour://catalog", Name = "Tour Catalog", MimeType = "text/plain")]
-    [System.ComponentModel.Description("Complete list of all available Royal Journeys tours.")]
+    [Description("Complete list of all available Royal Journeys tours.")]
     public string GetTourCatalog()
     {
         var tours = catalog.GetAll();
@@ -18,7 +17,7 @@ public class TravelResources(TourCatalogService catalog, DestinationService dest
     }
 
     [McpServerResource(UriTemplate = "destination://popular", Name = "Popular Destinations", MimeType = "text/plain")]
-    [System.ComponentModel.Description("Overview of all supported travel destinations.")]
+    [Description("Overview of all supported travel destinations.")]
     public string GetPopularDestinations()
     {
         var destinations = destinationService.GetAll();
@@ -28,7 +27,7 @@ public class TravelResources(TourCatalogService catalog, DestinationService dest
     }
 
     [McpServerResource(UriTemplate = "company://policies", Name = "Company Policies", MimeType = "text/plain")]
-    [System.ComponentModel.Description("Royal Journeys cancellation policy and general terms.")]
+    [Description("Royal Journeys cancellation policy and general terms.")]
     public string GetCompanyPolicies()
     {
         var agency = policyService.GetAgencyInfo();

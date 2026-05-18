@@ -1,8 +1,7 @@
-namespace Waha.McpServer.Tools;
-
-using System.ComponentModel;
 using ModelContextProtocol.Server;
 using Waha.McpServer.Services;
+
+namespace Waha.McpServer.Tools;
 
 [McpServerToolType]
 public class PromotionTools(PromotionService promotionService, PolicyService policyService)

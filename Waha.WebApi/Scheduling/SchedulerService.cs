@@ -67,8 +67,8 @@ public sealed class SchedulerService(
             {
                 await using var scope = scopeFactory.CreateAsyncScope();
                 var wahaClient = scope.ServiceProvider.GetRequiredService<WahaApiClient>();
-                var travelBot = scope.ServiceProvider.GetRequiredService<Handlers.TravelBotHandler>();
-                var feedbackHandler = scope.ServiceProvider.GetRequiredService<Handlers.FeedbackHandler>();
+                var travelBot = scope.ServiceProvider.GetRequiredService<TravelBotHandler>();
+                var feedbackHandler = scope.ServiceProvider.GetRequiredService<FeedbackHandler>();
 
                 switch (job.Type)
                 {

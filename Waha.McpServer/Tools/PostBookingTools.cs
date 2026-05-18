@@ -1,9 +1,8 @@
-namespace Waha.McpServer.Tools;
-
-using System.ComponentModel;
 using System.Collections.Concurrent;
 using ModelContextProtocol.Server;
 using Waha.McpServer.Services;
+
+namespace Waha.McpServer.Tools;
 
 [McpServerToolType]
 public class PostBookingTools(TourCatalogService catalog)
