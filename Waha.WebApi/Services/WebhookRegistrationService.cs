@@ -55,6 +55,10 @@ public sealed class WebhookRegistrationService(
                 await wahaClient.ConfigureWebhookAsync(webhookUrl, ct).ConfigureAwait(false);
                 _registeredUrl = webhookUrl;
                 logger.LogInformation("WAHA webhook registered successfully at: {WebhookUrl}", webhookUrl);
+
+                // Ensure the WAHA session is running — it may be STOPPED after a container
+                // restart (persistent container keeps config but not session state).
+                await wahaClient.EnsureSessionWorkingAsync(ct).ConfigureAwait(false);
                 return;
             }
             catch (Exception ex) when (attempt < 5 && !ct.IsCancellationRequested)

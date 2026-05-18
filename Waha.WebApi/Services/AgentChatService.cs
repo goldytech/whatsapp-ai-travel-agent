@@ -48,7 +48,7 @@ public sealed class AgentChatService(
             {
                 await wahaClient.SendTextAsync(
                     phoneNumber,
-                    "Apologies, I'm having trouble right now 😔 Please try again in a moment, or call us at +91-98765-43210.",
+                    "Apologies, I'm having trouble right now 😔 Please try again in a moment, or call us at +91-99999-99999.",
                     CancellationToken.None).ConfigureAwait(false);
             }
             catch (Exception fallbackEx)
