@@ -10,7 +10,9 @@
 
 ## Demo
 
-<video src="https://github.com/goldytech/whatsapp-ai-travel-agent/releases/download/v1.0.0/WhatsappAiBot2.mp4" controls width="100%"></video>
+[![Demo — click to watch full video](docs/demo.gif)](https://github.com/goldytech/whatsapp-ai-travel-agent/releases/download/v1.0.0/WhatsappAiBot2.mp4)
+
+> 🎬 *Preview (30 s) — click the GIF to watch the full demo video.*
 
 **Royal Journeys** is an open-source, AI-powered WhatsApp chatbot for travel agencies — built as both a **production-ready starter template** and a **reference implementation** showing how to wire together:
 
