@@ -11,7 +11,7 @@
 - **WAHA** (WhatsApp HTTP API) as a self-hosted WhatsApp gateway
 - **Microsoft Agents Framework** (MAF) for the AI agent runtime
 - **Model Context Protocol (MCP)** for a structured, extensible AI tool server
-- **Azure AI Foundry** (GPT-4.1 mini) as the LLM backend
+- **Azure AI Foundry** (GPT-5.4 mini) as the LLM backend
 
 Clone it, swap in your own tour catalog, configure your credentials, and you have a live WhatsApp bot — **Aria** — that can search tours, quote prices, capture booking inquiries, and send departure reminders to your customers.
 
@@ -42,7 +42,7 @@ flowchart TD
     end
 
     subgraph Azure["☁️ Azure AI Foundry"]
-        AI["GPT-4.1 mini\nAria — AI Travel Consultant"]
+        AI["GPT-5.4 mini\nAria — AI Travel Consultant"]
     end
 
     WA -->|"sends message"| WAHA
@@ -80,7 +80,7 @@ Alongside the live chat, `SchedulerService` fires departure reminders (7 days, 1
 | **Orchestration** | [.NET Aspire 13.3](https://learn.microsoft.com/en-us/dotnet/aspire/) | Service discovery, health checks, OpenTelemetry, DevTunnel, secrets |
 | **WhatsApp Gateway** | [WAHA](https://waha.devlike.pro/) (`devlikeapro/waha:noweb`) | Self-hosted WhatsApp HTTP API — no WhatsApp Business API fees |
 | **AI Agent Runtime** | [Microsoft Agents Framework 1.5](https://github.com/microsoft/agents) | `ChatClientAgent`, `AgentSession`, client-managed conversation history |
-| **LLM** | [Azure AI Foundry](https://azure.microsoft.com/en-us/products/ai-foundry/) (GPT-4.1 mini) | Chat completions backing the Aria agent |
+| **LLM** | [Azure AI Foundry](https://azure.microsoft.com/en-us/products/ai-foundry/) (GPT-5.4 mini) | Chat completions backing the Aria agent |
 | **AI Tool Protocol** | [Model Context Protocol 1.3](https://modelcontextprotocol.io/) | Structured HTTP-based tool server, auto-discovered by the agent |
 | **Resilience** | [Microsoft.Extensions.Http.Resilience](https://learn.microsoft.com/en-us/dotnet/core/resilience/) (Polly v8) | Circuit breaker, timeouts — retries intentionally disabled to prevent duplicate messages |
 | **Observability** | OpenTelemetry + Aspire Dashboard | Traces, structured logs, metrics across all services |
@@ -154,7 +154,7 @@ TravelAgencySaaS/
 | [Docker Desktop](https://www.docker.com/products/docker-desktop/) | Latest | Required to run the WAHA container |
 | [Aspire CLI](https://learn.microsoft.com/en-us/dotnet/aspire/fundamentals/aspire-sdk-tooling) | 13.3+ | `dotnet tool install -g aspire` |
 | [Azure DevTunnel CLI](https://learn.microsoft.com/en-us/azure/developer/dev-tunnels/get-started) | Latest | `devtunnel user login` before running |
-| [Azure AI Foundry](https://azure.microsoft.com/en-us/products/ai-foundry/) | — | Deployed GPT-4.1 mini (or compatible model) |
+| [Azure AI Foundry](https://azure.microsoft.com/en-us/products/ai-foundry/) | — | Deployed GPT-5.4 mini (or compatible model) |
 | WAHA API Key | — | Any string — you set this yourself in secrets |
 
 ---
