@@ -4,6 +4,9 @@
 [![.NET 10](https://img.shields.io/badge/.NET-10-purple.svg)](https://dotnet.microsoft.com/)
 [![Aspire](https://img.shields.io/badge/Aspire-13.3-blueviolet.svg)](https://learn.microsoft.com/en-us/dotnet/aspire/)
 [![WAHA](https://img.shields.io/badge/WAHA-noweb-green.svg)](https://waha.devlike.pro/)
+[![GitHub Stars](https://img.shields.io/github/stars/goldytech/whatsapp-ai-travel-agent?style=social)](https://github.com/goldytech/whatsapp-ai-travel-agent)
+
+> ⭐ If this project saves you time or inspires your work, please **[give it a star](https://github.com/goldytech/whatsapp-ai-travel-agent)** — it helps others discover it and keeps the momentum going!
 
 **Royal Journeys** is an open-source, AI-powered WhatsApp chatbot for travel agencies — built as both a **production-ready starter template** and a **reference implementation** showing how to wire together:
 
@@ -439,6 +442,16 @@ Contributions are welcome! Please follow these steps:
 - HTTP clients use `IHttpClientFactory` (typed or named) — no `new HttpClient()`
 - Background work uses `Channel<T>` or `IHostedService` — no `_ = Task.Run(...)`
 - Retries are intentionally disabled on `WahaApiClient` — retrying a `sendText` sends duplicate WhatsApp messages
+
+---
+
+---
+
+## Support This Project
+
+If **Royal Journeys** saved you time, sparked an idea, or helped you learn something new — a ⭐ on GitHub means a lot to an open-source builder and helps others discover the project.
+
+**[⭐ Star on GitHub](https://github.com/goldytech/whatsapp-ai-travel-agent)**
 
 ---
 
