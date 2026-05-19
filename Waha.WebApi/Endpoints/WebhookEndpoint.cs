@@ -1,3 +1,5 @@
+using Waha.WebApi.Queue;
+
 namespace Waha.WebApi.Endpoints;
 
 public static class WebhookEndpoint
@@ -17,29 +19,24 @@ public static class WebhookEndpoint
         return app;
     }
 
-    private static async Task<IResult> HandleWebhookAsync(
+    private static IResult HandleWebhookAsync(
         WahaWebhookPayload payload,
-        MessageRouter router,
-        ILoggerFactory loggerFactory,
-        CancellationToken ct)
+        WhatsAppMessageQueue messageQueue,
+        ILoggerFactory loggerFactory)
     {
         var logger = loggerFactory.CreateLogger(nameof(WebhookEndpoint));
         logger.LogDebug("Received WAHA event: {Event} from session: {Session}", payload.Event, payload.Session);
 
-        // Fire-and-forget with error isolation — webhook must return 200 quickly.
-        // Use CancellationToken.None so outbound WAHA calls aren't cancelled when
-        // the inbound HTTP request completes (which would cancel the request CT).
-        _ = Task.Run(async () =>
-        {
-            try
-            {
-                await router.RouteAsync(payload, CancellationToken.None).ConfigureAwait(false);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error handling WAHA event: {Event}", payload.Event);
-            }
-        }, CancellationToken.None);
+        if (payload.Event != "message")
+            return Results.Ok();
+
+        var message = payload.Payload?.Deserialize<WahaMessage>(JsonSerializerOptions.Web);
+        if (message is null || message.FromMe || string.IsNullOrWhiteSpace(message.Body))
+            return Results.Ok();
+
+        // Enqueue for background processing — webhook must return 200 quickly.
+        // The queue serialises processing, provides backpressure, and respects app shutdown.
+        messageQueue.TryEnqueue(message.From, message.Body);
 
         return Results.Ok();
     }

@@ -1,27 +1,46 @@
 using Waha.WebApi.Endpoints;
-using Waha.WebApi.Handlers;
+using Waha.WebApi.Queue;
 using Waha.WebApi.Scheduling;
-using Waha.WebApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
 
 // ─── WAHA HTTP Client ─────────────────────────────────────────────────────────
-// Uses Aspire service discovery: services__waha__http__0 is injected by AppHost
+// Resilience (retry=0, 5min total, circuit breaker) is set globally in ServiceDefaults.
+// Retries are intentionally disabled there to avoid duplicate WhatsApp messages.
 builder.Services.AddHttpClient<WahaApiClient>(client =>
 {
-    client.BaseAddress = new Uri("http://waha");   // Aspire service discovery name
+    client.BaseAddress = new Uri("http://waha");
     var apiKey = builder.Configuration["WAHA_API_KEY"] ?? string.Empty;
     client.DefaultRequestHeaders.Add("X-Api-Key", apiKey);
 });
 
-// ─── Bot Handlers ─────────────────────────────────────────────────────────────
+// ─── MCP Server HTTP Client (Aspire service discovery) ────────────────────────
+// MCP StreamableHttp uses short-lived request/response cycles per tool call —
+// the 3-min AttemptTimeout from ServiceDefaults is sufficient.
+builder.Services.AddHttpClient("mcpserver", client =>
+{
+    client.BaseAddress = new Uri("http://mcpserver");
+});
+
+// ─── Azure OpenAI Chat Client ─────────────────────────────────────────────────
+builder.AddAzureChatCompletionsClient(connectionName: "ai-foundry")
+    .AddChatClient("gpt-5.4-mini");
+
+// ─── AI Agent Services ────────────────────────────────────────────────────────
+builder.Services.AddSingleton<McpClientProvider>();
+builder.Services.AddSingleton<AgentSessionStore>();
+builder.Services.AddSingleton<TravelAgentFactory>();
+builder.Services.AddScoped<AgentChatService>();
+
+// ─── Bot Handlers (used by scheduler for reminders/post-trip) ─────────────────
 builder.Services.AddScoped<TravelBotHandler>();
 builder.Services.AddScoped<FeedbackHandler>();
-builder.Services.AddScoped<MessageRouter>();
 
 // ─── Background Services ──────────────────────────────────────────────────────
+builder.Services.AddSingleton<WhatsAppMessageQueue>();
+builder.Services.AddHostedService(sp => sp.GetRequiredService<WhatsAppMessageQueue>());
 builder.Services.AddSingleton<SchedulerService>();
 builder.Services.AddHostedService(sp => sp.GetRequiredService<SchedulerService>());
 builder.Services.AddSingleton<WebhookRegistrationService>();
@@ -30,7 +49,7 @@ builder.Services.AddHostedService(sp => sp.GetRequiredService<WebhookRegistratio
 // ─── JSON serialisation ───────────────────────────────────────────────────────
 builder.Services.ConfigureHttpJsonOptions(options =>
 {
-    options.SerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+    options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
 });
 
 var app = builder.Build();

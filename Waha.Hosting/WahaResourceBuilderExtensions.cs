@@ -48,7 +48,7 @@ public static class WahaResourceBuilderExtensions
             .WithEnvironment("WAHA_DASHBOARD_PASSWORD", dashboardPassword)
             .WithEnvironment("WHATSAPP_SWAGGER_USERNAME", "admin")
             .WithEnvironment("WHATSAPP_SWAGGER_PASSWORD", swaggerPassword)
-            .WithHttpHealthCheck("/")
+            .WithHttpHealthCheck("/ping")
             .ExcludeFromManifest();
 
         // WithUrl uses the ReferenceExpression interpolated-string overload so URL resolution

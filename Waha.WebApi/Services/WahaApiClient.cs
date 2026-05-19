@@ -38,6 +38,42 @@ public sealed class WahaApiClient(
         await PostAsync("/api/sendPoll", request, ct).ConfigureAwait(false);
     }
 
+    // ─── Session Management ──────────────────────────────────────────────────
+
+    /// <summary>
+    /// Checks session status and starts it if STOPPED or FAILED.
+    /// Safe to call when the session is already WORKING — returns immediately.
+    /// </summary>
+    public async Task EnsureSessionWorkingAsync(CancellationToken ct = default)
+    {
+        using var response = await httpClient.GetAsync("/api/sessions/default", ct).ConfigureAwait(false);
+        if (!response.IsSuccessStatusCode) return;
+
+        var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+        using var doc = JsonDocument.Parse(body);
+        var status = doc.RootElement.GetProperty("status").GetString();
+
+        if (status is "WORKING" or "STARTING")
+        {
+            logger.LogInformation("WAHA session status: {Status} — no action needed", status);
+            return;
+        }
+
+        logger.LogWarning("WAHA session is {Status} — starting it now", status);
+        using var startResponse = await httpClient.PostAsync(
+            "/api/sessions/default/start",
+            new StringContent("{}", System.Text.Encoding.UTF8, "application/json"),
+            ct).ConfigureAwait(false);
+
+        if (startResponse.IsSuccessStatusCode)
+            logger.LogInformation("WAHA session started successfully");
+        else
+        {
+            var err = await startResponse.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            logger.LogWarning("Failed to start WAHA session: {Status} {Body}", startResponse.StatusCode, err);
+        }
+    }
+
     // ─── Webhook Configuration ───────────────────────────────────────────────
 
     public async Task ConfigureWebhookAsync(string webhookUrl, CancellationToken ct = default)

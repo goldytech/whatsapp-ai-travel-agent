@@ -1,13 +1,15 @@
-<Project Sdk="Aspire.AppHost.Sdk/13.3.2">
+<Project Sdk="Aspire.AppHost.Sdk/13.3.3">
 
     <ItemGroup>
       <ProjectReference Include="..\Waha.WebApi\Waha.WebApi.csproj" />
+      <ProjectReference Include="..\Waha.McpServer\Waha.McpServer.csproj" />
       <!-- IsAspireProjectResource=false: treat as a library, not an orchestrated service -->
       <ProjectReference Include="..\Waha.Hosting\Waha.Hosting.csproj" IsAspireProjectResource="false" />
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Aspire.Hosting.DevTunnels" Version="13.3.2" />
+      <PackageReference Include="Aspire.Hosting.DevTunnels" Version="13.3.3" />
+      <PackageReference Include="CommunityToolkit.Aspire.Hosting.McpInspector" Version="13.3.0" />
     </ItemGroup>
 
     <PropertyGroup>

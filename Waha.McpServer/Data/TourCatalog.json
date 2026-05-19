@@ -1,0 +1,293 @@
+[
+  {
+    "id": "GOA-DEC",
+    "name": "Goa Beach Escape",
+    "destination": "Goa",
+    "duration": "5 nights / 6 days",
+    "durationDays": 6,
+    "price": 18500,
+    "singleSupplement": 4000,
+    "currency": "INR",
+    "tags": [ "beach", "family", "couple", "december", "water-sports" ],
+    "highlights": [
+      "Beach resort stay",
+      "Water sports package (jet ski, parasailing, banana boat)",
+      "Old Goa heritage church tour",
+      "Sunset dinner cruise",
+      "Award-winning seafood dining"
+    ],
+    "inclusions": [
+      "5 nights accommodation in a 3-star beach resort",
+      "Daily breakfast and dinner",
+      "AC vehicle for all transfers and sightseeing",
+      "Water sports package (3 activities)",
+      "Sunset cruise with dinner",
+      "Tour escort / guide",
+      "All applicable taxes"
+    ],
+    "exclusions": [
+      "Airfare / train tickets to/from Goa",
+      "Lunch",
+      "Personal expenses and tips",
+      "Camera fees at monuments",
+      "Travel insurance",
+      "Any activity not mentioned in inclusions"
+    ],
+    "availability": {
+      "2025-12": 8,
+      "2026-01": 12,
+      "2026-02": 10,
+      "2026-12": 15
+    },
+    "itinerary": [
+      { "day": 1, "title": "Arrival & Check-in", "activities": "Arrive at Goa airport/station. Transfer to beach resort. Evening at leisure on the beach. Welcome dinner." },
+      { "day": 2, "title": "North Goa Beach & Heritage", "activities": "Morning water sports at Calangute/Baga Beach. Afternoon Old Goa church tour (Basilica of Bom Jesus, Se Cathedral). Evening at leisure." },
+      { "day": 3, "title": "South Goa Exploration", "activities": "Visit Palolem Beach and Colva Beach. Explore spice plantation. Seafood lunch by the beach." },
+      { "day": 4, "title": "Water Sports & Leisure", "activities": "Full water sports package – jet ski, parasailing, banana boat ride. Afternoon free for shopping at Anjuna flea market." },
+      { "day": 5, "title": "Sunset Cruise & Markets", "activities": "Morning at leisure. Evening sunset dinner cruise on Mandovi River with live Goan folk music." },
+      { "day": 6, "title": "Departure", "activities": "Breakfast and checkout. Transfer to airport/station." }
+    ],
+    "reviews": [
+      { "author": "Priya M.", "rating": 5, "comment": "Absolutely magical! The beach resort was stunning and the water sports were a blast.", "date": "2024-12-15", "verified": true },
+      { "author": "Ravi K.", "rating": 4, "comment": "Great trip overall. The sunset cruise was the highlight. Food could be better.", "date": "2024-12-20", "verified": true },
+      { "author": "Sunita R.", "rating": 5, "comment": "Loved every moment. Royal Journeys took care of everything perfectly.", "date": "2025-01-05", "verified": true }
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Goa-Beach.jpg/640px-Goa-Beach.jpg"
+  },
+  {
+    "id": "MANALI-WINTER",
+    "name": "Manali Snow Adventure",
+    "destination": "Manali, Himachal Pradesh",
+    "duration": "6 nights / 7 days",
+    "durationDays": 7,
+    "price": 24000,
+    "singleSupplement": 5000,
+    "currency": "INR",
+    "tags": [ "snow", "adventure", "family", "honeymoon", "december", "january" ],
+    "highlights": [
+      "Snow activities – skiing, snowboarding, snow trekking",
+      "Rohtang Pass excursion (subject to permit)",
+      "Solang Valley snow point",
+      "Hadimba Devi Temple visit",
+      "Romantic bonfire evenings"
+    ],
+    "inclusions": [
+      "6 nights accommodation in a boutique hotel/resort",
+      "Daily breakfast and dinner",
+      "AC vehicle for all transfers and sightseeing",
+      "Snow activity package at Solang Valley",
+      "Rohtang Pass excursion with permit",
+      "Hadimba Temple and local sightseeing",
+      "Tour escort / guide",
+      "All applicable taxes"
+    ],
+    "exclusions": [
+      "Airfare / train tickets to/from Manali",
+      "Lunch",
+      "Personal expenses (hot drinks, snacks)",
+      "Snow gear rental (jacket, boots, gloves)",
+      "Travel insurance",
+      "Porter/pony charges"
+    ],
+    "availability": {
+      "2025-12": 6,
+      "2026-01": 8,
+      "2026-02": 4
+    },
+    "itinerary": [
+      { "day": 1, "title": "Arrival in Manali", "activities": "Arrive and check in. Evening stroll on Mall Road. Welcome dinner and bonfire." },
+      { "day": 2, "title": "Solang Valley Snow Point", "activities": "Full day at Solang Valley. Skiing, snow tubing, snow trekking. Return by evening." },
+      { "day": 3, "title": "Rohtang Pass", "activities": "Early morning departure for Rohtang Pass (subject to permit availability). Snow activities, photography. Return by afternoon." },
+      { "day": 4, "title": "Old Manali & Hadimba Temple", "activities": "Visit Hadimba Devi Temple and Manu Temple. Explore Old Manali cafes and markets. Afternoon leisure." },
+      { "day": 5, "title": "Kullu & Naggar Castle", "activities": "Drive to Kullu valley. Visit Naggar Castle and Nicholas Roerich Art Gallery. Whitewater rafting option." },
+      { "day": 6, "title": "Adventure Day", "activities": "Choose from ziplining, quad biking, or a nature walk to Jogini Waterfall. Evening bonfire and cultural program." },
+      { "day": 7, "title": "Departure", "activities": "Breakfast and checkout. Transfer to Bhuntar Airport or Manali bus stand." }
+    ],
+    "reviews": [
+      { "author": "Arjun S.", "rating": 5, "comment": "Best honeymoon trip ever! Rohtang Pass in snow was breathtaking.", "date": "2025-01-10", "verified": true },
+      { "author": "Nisha P.", "rating": 4, "comment": "Amazing experience. Snow gear rental is expensive locally, wish it was included.", "date": "2025-01-22", "verified": true }
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Manali_in_winter.jpg/640px-Manali_in_winter.jpg"
+  },
+  {
+    "id": "KERALA-BACKWATERS",
+    "name": "Kerala Backwaters & Beaches",
+    "destination": "Kerala",
+    "duration": "7 nights / 8 days",
+    "durationDays": 8,
+    "price": 32000,
+    "singleSupplement": 6500,
+    "currency": "INR",
+    "tags": [ "backwaters", "houseboat", "family", "nature", "ayurveda" ],
+    "highlights": [
+      "Overnight houseboat stay in Alleppey backwaters",
+      "Munnar tea garden walks",
+      "Kovalam crescent beach",
+      "Kathakali classical dance performance",
+      "Signature Ayurvedic rejuvenation spa"
+    ],
+    "inclusions": [
+      "7 nights accommodation (3-star hotels + 1 night houseboat)",
+      "Daily breakfast and dinner (all meals on houseboat)",
+      "AC vehicle for all transfers and sightseeing",
+      "Kathakali performance tickets",
+      "Ayurvedic spa session (60 min)",
+      "Munnar tea estate guided tour",
+      "Tour escort / guide",
+      "All applicable taxes"
+    ],
+    "exclusions": [
+      "Airfare / train tickets to/from Kerala",
+      "Lunch (except on houseboat)",
+      "Personal expenses",
+      "Thekkady jeep safari (optional add-on)",
+      "Travel insurance"
+    ],
+    "availability": {
+      "2025-10": 4,
+      "2025-11": 6,
+      "2025-12": 4,
+      "2026-01": 8,
+      "2026-02": 6,
+      "2026-03": 10
+    },
+    "itinerary": [
+      { "day": 1, "title": "Arrive Cochin", "activities": "Arrive at Cochin airport. Transfer to hotel. Evening Fort Kochi walk – Chinese fishing nets, spice market." },
+      { "day": 2, "title": "Cochin Heritage & Kathakali", "activities": "Mattancherry Palace and Jewish Synagogue. Evening Kathakali performance." },
+      { "day": 3, "title": "Munnar Tea Gardens", "activities": "Drive to Munnar through scenic tea estates. Visit tea factory. Evening walk in the hills." },
+      { "day": 4, "title": "Munnar & Eravikulam", "activities": "Eravikulam National Park (Nilgiri Tahr). Top Station viewpoint. Afternoon at leisure." },
+      { "day": 5, "title": "Thekkady Wildlife", "activities": "Drive to Thekkady. Periyar Lake boat cruise for wildlife spotting. Spice plantation tour." },
+      { "day": 6, "title": "Alleppey Houseboat", "activities": "Drive to Alleppey. Board traditional kettuvallam (houseboat). Cruise through backwaters. All meals on board." },
+      { "day": 7, "title": "Kovalam Beach", "activities": "Drive to Kovalam. Relax on lighthouse beach. Ayurvedic spa session. Seafood dinner." },
+      { "day": 8, "title": "Departure", "activities": "Breakfast and checkout. Transfer to Trivandrum airport." }
+    ],
+    "reviews": [
+      { "author": "Meera T.", "rating": 5, "comment": "The houseboat night was pure magic. Kerala is stunning – will definitely come back.", "date": "2024-11-18", "verified": true },
+      { "author": "Vikram L.", "rating": 5, "comment": "Every detail was perfectly arranged. The Ayurvedic spa was deeply relaxing.", "date": "2024-12-02", "verified": true }
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Alleppey_Backwaters.jpg/640px-Alleppey_Backwaters.jpg"
+  },
+  {
+    "id": "RAJASTHAN-ROYAL",
+    "name": "Royal Rajasthan Heritage",
+    "destination": "Jaipur, Jodhpur, Udaipur",
+    "duration": "8 nights / 9 days",
+    "durationDays": 9,
+    "price": 38000,
+    "singleSupplement": 8000,
+    "currency": "INR",
+    "tags": [ "heritage", "history", "culture", "family", "couple" ],
+    "highlights": [
+      "Amber Fort elephant / jeep ride in Jaipur",
+      "Mehrangarh Fort – blue city panorama",
+      "City Palace and Lake Pichola, Udaipur",
+      "Desert camel safari at Sam Sand Dunes",
+      "Palace hotel stay (heritage property)"
+    ],
+    "inclusions": [
+      "8 nights in heritage/boutique hotels",
+      "Daily breakfast and dinner",
+      "AC vehicle for all transfers and sightseeing",
+      "Amber Fort entry + jeep ride",
+      "Camel safari at Sam Sand Dunes (Jaisalmer day trip)",
+      "Boat ride on Lake Pichola",
+      "All monument entry fees",
+      "Tour escort / guide",
+      "All applicable taxes"
+    ],
+    "exclusions": [
+      "Airfare / train tickets between cities",
+      "Lunch",
+      "Personal expenses",
+      "Shopping and tips",
+      "Camera fees inside forts",
+      "Travel insurance"
+    ],
+    "availability": {
+      "2025-10": 10,
+      "2025-11": 12,
+      "2025-12": 8,
+      "2026-01": 15,
+      "2026-02": 12,
+      "2026-03": 10
+    },
+    "itinerary": [
+      { "day": 1, "title": "Arrive Jaipur – Pink City", "activities": "Arrive at Jaipur. Check in to heritage hotel. Evening at Chokhi Dhani for Rajasthani cultural dinner." },
+      { "day": 2, "title": "Jaipur Forts & Palaces", "activities": "Amber Fort (jeep ride). Nahargarh Fort. Hawa Mahal. City Palace and Jantar Mantar. Evening at Johari Bazaar." },
+      { "day": 3, "title": "Jaipur Outskirts", "activities": "Abhaneri Step Well. Fatehpur Sikri (en route to Agra). Taj Mahal at sunset." },
+      { "day": 4, "title": "Drive to Jodhpur – Blue City", "activities": "Scenic drive via desert highway. Arrive Jodhpur. Evening stroll in old city bazaar." },
+      { "day": 5, "title": "Jodhpur Heritage", "activities": "Mehrangarh Fort (panoramic views). Jaswant Thada marble cenotaph. Clocktower spice market." },
+      { "day": 6, "title": "Jaisalmer – Golden City", "activities": "Drive to Jaisalmer. Jaisalmer Fort. Patwon Ki Haveli. Evening camel safari at Sam Sand Dunes. Desert camp dinner." },
+      { "day": 7, "title": "Drive to Udaipur – Lake City", "activities": "Drive through Aravalli hills. Arrive Udaipur. Evening boat ride on Lake Pichola." },
+      { "day": 8, "title": "Udaipur Palaces", "activities": "City Palace museum. Jagdish Temple. Saheliyon ki Bari garden. Monsoon Palace sunset view." },
+      { "day": 9, "title": "Departure", "activities": "Breakfast. Transfer to Udaipur airport or railway station." }
+    ],
+    "reviews": [
+      { "author": "Deepa N.", "rating": 5, "comment": "A journey through time! The camel safari under stars was unforgettable.", "date": "2024-11-30", "verified": true },
+      { "author": "Sanjay B.", "rating": 4, "comment": "Magnificent forts and palaces. Royal Journeys arranged everything seamlessly.", "date": "2025-01-14", "verified": true },
+      { "author": "Kavita H.", "rating": 5, "comment": "Udaipur is a dream. Heritage hotel stay was the cherry on top!", "date": "2025-02-03", "verified": true }
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Amber_Fort_Jaipur_1.jpg/640px-Amber_Fort_Jaipur_1.jpg"
+  },
+  {
+    "id": "ANDAMAN-PARADISE",
+    "name": "Andaman Island Paradise",
+    "destination": "Port Blair & Havelock Island",
+    "duration": "6 nights / 7 days",
+    "durationDays": 7,
+    "price": 42000,
+    "singleSupplement": 9000,
+    "currency": "INR",
+    "tags": [ "island", "snorkeling", "scuba", "honeymoon", "beach", "family" ],
+    "highlights": [
+      "Radhanagar Beach – Asia's cleanest beach",
+      "Elephant Beach snorkeling & glass-bottom boat",
+      "Cellular Jail light & sound show",
+      "Sea walking (no experience needed)",
+      "Coral reef scuba diving"
+    ],
+    "inclusions": [
+      "6 nights accommodation (2 nights Havelock beach resort)",
+      "Daily breakfast and dinner",
+      "Ferry tickets (Port Blair ↔ Havelock)",
+      "All inter-island and airport transfers",
+      "Snorkeling at Elephant Beach",
+      "Glass-bottom boat ride",
+      "Sea walking experience",
+      "Cellular Jail entry + light & sound show",
+      "Tour escort / guide",
+      "All applicable taxes"
+    ],
+    "exclusions": [
+      "Airfare to/from Port Blair",
+      "Lunch",
+      "Scuba diving (optional add-on ₹3500/person)",
+      "Personal expenses",
+      "Underwater photography",
+      "Travel insurance"
+    ],
+    "availability": {
+      "2025-10": 5,
+      "2025-11": 6,
+      "2025-12": 4,
+      "2026-01": 8,
+      "2026-02": 6,
+      "2026-03": 10,
+      "2026-04": 8
+    },
+    "itinerary": [
+      { "day": 1, "title": "Arrive Port Blair", "activities": "Arrive at Veer Savarkar Airport. Transfer to hotel. Evening visit to Corbyn's Cove Beach." },
+      { "day": 2, "title": "Port Blair Heritage", "activities": "Cellular Jail tour. Ross Island – ruins of British headquarters. North Bay Island – snorkeling and glass-bottom boat." },
+      { "day": 3, "title": "Havelock Island", "activities": "Morning ferry to Havelock. Check in at beach resort. Afternoon at Radhanagar Beach (Asia's No. 1 beach)." },
+      { "day": 4, "title": "Elephant Beach Adventures", "activities": "Boat to Elephant Beach. Snorkeling in crystal-clear waters. Sea walking (no prior experience needed). Afternoon at leisure." },
+      { "day": 5, "title": "Leisure & Scuba (Optional)", "activities": "Free day at Havelock. Optional scuba diving at Neil's Cove reef. Sunset beach walk." },
+      { "day": 6, "title": "Neil Island & Return", "activities": "Day trip to Neil Island – Natural Bridge, Bharatpur Beach. Return ferry to Port Blair. Farewell seafood dinner." },
+      { "day": 7, "title": "Departure", "activities": "Breakfast and checkout. Transfer to airport." }
+    ],
+    "reviews": [
+      { "author": "Rahul G.", "rating": 5, "comment": "Havelock Island is paradise on earth. Sea walking was an experience of a lifetime!", "date": "2024-12-10", "verified": true },
+      { "author": "Anjali S.", "rating": 5, "comment": "Our honeymoon was perfect. Radhanagar Beach at sunset – words can't describe it.", "date": "2025-01-28", "verified": true }
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Radhanagar_Beach.jpg/640px-Radhanagar_Beach.jpg"
+  }
+]

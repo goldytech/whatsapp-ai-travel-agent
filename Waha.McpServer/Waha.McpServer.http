@@ -1,0 +1,18 @@
+@Waha.McpServer_HostAddress = http://localhost:5282
+
+POST {{Waha.McpServer_HostAddress}}/mcp
+Content-Type: application/json
+Accept: application/json, text/event-stream
+
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "initialize",
+  "params": {
+    "protocolVersion": "2024-11-05",
+    "capabilities": {},
+    "clientInfo": { "name": "http-client", "version": "1.0" }
+  }
+}
+
+###
