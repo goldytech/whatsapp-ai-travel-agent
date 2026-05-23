@@ -11,15 +11,15 @@ namespace Waha.WebApi.Services;
 ///   4. Serialize the updated session back to the store
 ///   5. Dispatch the AI reply via WhatsApp — images first, then text — using <see cref="WahaApiClient"/>
 /// </summary>
-public sealed class AgentChatService(
+public sealed partial class AgentChatService(
     TravelAgentFactory agentFactory,
     AgentSessionStore sessionStore,
     WahaApiClient wahaClient,
     ILogger<AgentChatService> logger)
 {
     // Matches {{image:https://...}} or {{image:https://...|caption text}}
-    private static readonly Regex ImageMarker =
-        new(@"\{\{image:(?<url>https?://[^\}|]+?)(?:\|(?<caption>[^\}]*))?\}\}", RegexOptions.Compiled);
+    [GeneratedRegex(@"\{\{image:(?<url>https?://[^\}|]+?)(?:\|(?<caption>[^\}]*))?\}\}")]
+    private static partial Regex ImageMarker();
 
     public async Task HandleAsync(string phoneNumber, string userMessage, CancellationToken ct = default)
     {
@@ -72,7 +72,7 @@ public sealed class AgentChatService(
     /// </summary>
     private async Task SendReplyAsync(string phoneNumber, string rawReply, CancellationToken ct)
     {
-        var matches = ImageMarker.Matches(rawReply);
+        var matches = ImageMarker().Matches(rawReply);
 
         foreach (Match match in matches)
         {
@@ -89,7 +89,7 @@ public sealed class AgentChatService(
             }
         }
 
-        var textReply = ImageMarker.Replace(rawReply, string.Empty).Trim();
+        var textReply = ImageMarker().Replace(rawReply, string.Empty).Trim();
         if (!string.IsNullOrWhiteSpace(textReply))
             await wahaClient.SendTextAsync(phoneNumber, textReply, ct).ConfigureAwait(false);
     }
