@@ -83,7 +83,7 @@ Alongside the live chat, `SchedulerService` fires departure reminders (7 days, 1
 
 | Layer | Technology | Purpose |
 |---|---|---|
-| **Runtime** | .NET 10 / C# 13 | All projects |
+| **Runtime** | .NET 10 / C# 14 | All projects |
 | **Orchestration** | [.NET Aspire 13.3](https://learn.microsoft.com/en-us/dotnet/aspire/) | Service discovery, health checks, OpenTelemetry, DevTunnel, secrets |
 | **WhatsApp Gateway** | [WAHA](https://waha.devlike.pro/) (`devlikeapro/waha:noweb`) | Self-hosted WhatsApp HTTP API — no WhatsApp Business API fees |
 | **AI Agent Runtime** | [Microsoft Agents Framework 1.5](https://github.com/microsoft/agents) | `ChatClientAgent`, `AgentSession`, client-managed conversation history |
@@ -496,7 +496,7 @@ Contributions are welcome! Please follow these steps:
    git checkout -b feat/<issue-number>-short-description
    ```
 3. Make your changes following the existing code style:
-   - C# 13 features where appropriate (`System.Threading.Lock`, collection expressions, etc.)
+   - C# 14 features where appropriate (`field`-backed properties, extension members, `System.Threading.Lock`, collection expressions, etc.)
    - Primary constructors for services
    - `ConfigureAwait(false)` on all `await` calls in library/service code
    - No `#pragma warning disable` — fix the root cause instead

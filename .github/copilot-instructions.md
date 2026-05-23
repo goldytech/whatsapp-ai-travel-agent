@@ -50,7 +50,7 @@ WhatsApp → WAHA container → DevTunnel → /webhook (WebApi)
 ### C# style
 - **Primary constructors** on all services (no `private readonly` field boilerplate for injected deps).
 - **`ConfigureAwait(false)`** on every `await` call inside services and library code.
-- **C# 13 features** where appropriate: `System.Threading.Lock`, collection expressions (`[.. items]`), etc.
+- **C# 14 features** where appropriate: `field`-backed properties, extension members, `System.Threading.Lock`, collection expressions (`[.. items]`), etc.
 - No `#pragma warning disable` — fix the root cause.
 
 ### DI lifetime rules

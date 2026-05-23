@@ -9,7 +9,7 @@ public sealed class SchedulerService(
     ILogger<SchedulerService> logger) : BackgroundService
 {
     private readonly List<ReminderJob> _jobs = [];
-    // System.Threading.Lock (C# 13 / .NET 9+) — higher-perf than locking on `object`
+    // System.Threading.Lock (C# 14 / .NET 10+) — higher-perf than locking on `object`
     private readonly Lock _jobsLock = new();
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
