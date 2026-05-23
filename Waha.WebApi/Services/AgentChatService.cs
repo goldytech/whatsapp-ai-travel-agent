@@ -1,4 +1,5 @@
 using Microsoft.Agents.AI;
+using System.Text.RegularExpressions;
 
 namespace Waha.WebApi.Services;
 
@@ -8,7 +9,7 @@ namespace Waha.WebApi.Services;
 ///   2. Deserialize back into an <see cref="AgentSession"/> (carries full conversation history)
 ///   3. Run Aria against the incoming message
 ///   4. Serialize the updated session back to the store
-///   5. Send the AI reply via WhatsApp using <see cref="WahaApiClient"/>
+///   5. Dispatch the AI reply via WhatsApp — images first, then text — using <see cref="WahaApiClient"/>
 /// </summary>
 public sealed class AgentChatService(
     TravelAgentFactory agentFactory,
@@ -16,6 +17,10 @@ public sealed class AgentChatService(
     WahaApiClient wahaClient,
     ILogger<AgentChatService> logger)
 {
+    // Matches {{image:https://...}} or {{image:https://...|caption text}}
+    private static readonly Regex ImageMarker =
+        new(@"\{\{image:(?<url>https?://[^\}|]+?)(?:\|(?<caption>[^\}]*))?\}\}", RegexOptions.Compiled);
+
     public async Task HandleAsync(string phoneNumber, string userMessage, CancellationToken ct = default)
     {
         try
@@ -31,13 +36,13 @@ public sealed class AgentChatService(
 
             // Run the agent
             var response = await agent.RunAsync(userMessage, session, cancellationToken: ct).ConfigureAwait(false);
-            var replyText = response.Text ?? "I'm sorry, I couldn't process that. Please try again. 🙏";
+            var rawReply = response.Text ?? "I'm sorry, I couldn't process that. Please try again. 🙏";
 
             // Persist the updated session for this customer
             sessionStore.Set(phoneNumber, session);
 
-            // Send the AI reply via WhatsApp
-            await wahaClient.SendTextAsync(phoneNumber, replyText, ct).ConfigureAwait(false);
+            // Dispatch images first, then the text reply (markers stripped from text)
+            await SendReplyAsync(phoneNumber, rawReply, ct).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -57,5 +62,35 @@ public sealed class AgentChatService(
                 logger.LogDebug(fallbackEx, "Failed to send fallback error message to {Phone}", phoneNumber);
             }
         }
+    }
+
+    /// <summary>
+    /// Parses <c>{{image:URL}}</c> or <c>{{image:URL|caption}}</c> markers embedded by Aria,
+    /// sends each image via <see cref="WahaApiClient.SendImageAsync"/>, then sends the
+    /// remaining text (markers stripped) via <see cref="WahaApiClient.SendTextAsync"/>.
+    /// Image failures are logged at Warning and never block the text reply.
+    /// </summary>
+    private async Task SendReplyAsync(string phoneNumber, string rawReply, CancellationToken ct)
+    {
+        var matches = ImageMarker.Matches(rawReply);
+
+        foreach (Match match in matches)
+        {
+            var url = match.Groups["url"].Value.Trim();
+            var caption = match.Groups["caption"].Success ? match.Groups["caption"].Value.Trim() : null;
+
+            try
+            {
+                await wahaClient.SendImageAsync(phoneNumber, url, caption, ct).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex, "Failed to send image to {Phone} — URL: {Url}", phoneNumber, url);
+            }
+        }
+
+        var textReply = ImageMarker.Replace(rawReply, string.Empty).Trim();
+        if (!string.IsNullOrWhiteSpace(textReply))
+            await wahaClient.SendTextAsync(phoneNumber, textReply, ct).ConfigureAwait(false);
     }
 }

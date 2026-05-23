@@ -1,0 +1,141 @@
+[
+  {
+    "id": "GOA-BUDGET-01",
+    "destination": "Goa",
+    "name": "Zostel Goa (Panjim)",
+    "tier": "Budget",
+    "locationDescription": "Centrally located in Panjim, 10 min from Miramar Beach",
+    "description": "A popular heritage hostel in a restored Portuguese mansion. Offers clean private rooms and dorms, rooftop hangout area, and easy access to North Goa beaches and Old Goa heritage sites.",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Fontainhas_Panjim_Goa.jpg/640px-Fontainhas_Panjim_Goa.jpg"
+  },
+  {
+    "id": "GOA-MID-01",
+    "destination": "Goa",
+    "name": "Lemon Tree Amarante Beach Resort",
+    "tier": "Mid-range",
+    "locationDescription": "Varca Beach, South Goa — quiet stretch, 45 min from airport",
+    "description": "A well-regarded beach resort with a pool, multi-cuisine restaurant, and direct beach access. Spacious rooms with sea-facing balconies. Ideal for families and couples seeking comfort without luxury pricing.",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Varca_Beach_Goa.jpg/640px-Varca_Beach_Goa.jpg"
+  },
+  {
+    "id": "GOA-LUX-01",
+    "destination": "Goa",
+    "name": "Taj Holiday Village Resort & Spa",
+    "tier": "Luxury",
+    "locationDescription": "Sinquerim, Candolim — premium beachfront location, North Goa",
+    "description": "An iconic Taj property with colonial Portuguese-style cottages set in lush gardens leading to a private beach. Features a full-service spa, multiple dining options, and butler service.",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Taj_Holiday_Village_Goa.jpg/640px-Taj_Holiday_Village_Goa.jpg"
+  },
+
+  {
+    "id": "MANALI-BUDGET-01",
+    "destination": "Manali, Himachal Pradesh",
+    "name": "Snow Valley Resorts (Budget Wing)",
+    "tier": "Budget",
+    "locationDescription": "Old Manali village, 3 km from Mall Road — quiet riverside location",
+    "description": "Cozy guesthouse-style rooms with mountain views, hot water, and a café serving Himachali food. Popular with backpackers and young travellers. Walking distance to Old Manali cafes and the Manu Temple.",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Old_Manali%2C_Himachal_Pradesh.jpg/640px-Old_Manali%2C_Himachal_Pradesh.jpg"
+  },
+  {
+    "id": "MANALI-MID-01",
+    "destination": "Manali, Himachal Pradesh",
+    "name": "Club Mahindra Snow Peaks",
+    "tier": "Mid-range",
+    "locationDescription": "Manali town, near Hadimba Road — central with Beas River views",
+    "description": "A well-equipped resort with heated rooms, indoor pool, and an all-day dining restaurant. Offers snow-activity packages during winter and adventure sports coordination in summer.",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Manali_in_winter.jpg/640px-Manali_in_winter.jpg"
+  },
+  {
+    "id": "MANALI-LUX-01",
+    "destination": "Manali, Himachal Pradesh",
+    "name": "Span Resort & Spa",
+    "tier": "Luxury",
+    "locationDescription": "Kullu-Manali Highway, 6 km from Manali on the banks of River Beas",
+    "description": "A premium riverside resort with private balconies overlooking the Beas River, a full-service Ayurvedic spa, bonfire evenings, and curated Himalayan experiences. Ideal for honeymoon and premium family trips.",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Beas_River_near_Kullu.jpg/640px-Beas_River_near_Kullu.jpg"
+  },
+
+  {
+    "id": "KERALA-BUDGET-01",
+    "destination": "Kerala",
+    "name": "Zostel Kochi",
+    "tier": "Budget",
+    "locationDescription": "Fort Kochi heritage district — 5 min walk from Chinese fishing nets",
+    "description": "A stylish boutique hostel in a restored colonial building in the heart of Fort Kochi. Clean private rooms with AC, common lounge with hammocks, and easy access to Fort Kochi's art galleries, spice markets, and backwater tours.",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Fort_Kochi_Chinese_fishing_nets.jpg/640px-Fort_Kochi_Chinese_fishing_nets.jpg"
+  },
+  {
+    "id": "KERALA-MID-01",
+    "destination": "Kerala",
+    "name": "Fragrant Nature Backwater Resort",
+    "tier": "Mid-range",
+    "locationDescription": "Kollam backwaters, 90 min from Alleppey — on the banks of Ashtamudi Lake",
+    "description": "A serene mid-range resort with cottages set in spice gardens on the edge of the backwaters. Includes a pool, Ayurvedic treatments, houseboat tours, and authentic Kerala cuisine. Excellent for relaxation-focused itineraries.",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Kerala_backwaters.jpg/640px-Kerala_backwaters.jpg"
+  },
+  {
+    "id": "KERALA-LUX-01",
+    "destination": "Kerala",
+    "name": "Kumarakom Lake Resort",
+    "tier": "Luxury",
+    "locationDescription": "Kumarakom, Kottayam — directly on Vembanad Lake",
+    "description": "An award-winning luxury heritage resort with traditional Kerala-style villas and heritage bungalows, a private lake jetty, infinity pool, and signature Ayurvedic spa. One of the finest luxury properties in South India.",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Vembanad_Lake_Kerala.jpg/640px-Vembanad_Lake_Kerala.jpg"
+  },
+
+  {
+    "id": "RAJASTHAN-BUDGET-01",
+    "destination": "Rajasthan",
+    "name": "Moustache Hostel Jaipur",
+    "tier": "Budget",
+    "locationDescription": "C-Scheme, Jaipur — central location, 15 min from Hawa Mahal",
+    "description": "An award-winning hostel in a renovated colonial bungalow with a rooftop terrace, private rooms, and excellent food. Organises city tours, cooking classes, and desert day trips. Popular with solo and budget group travellers.",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Hawa_Mahal_Jaipur.jpg/640px-Hawa_Mahal_Jaipur.jpg"
+  },
+  {
+    "id": "RAJASTHAN-MID-01",
+    "destination": "Rajasthan",
+    "name": "WelcomHeritage Bal Samand Lake Palace",
+    "tier": "Mid-range",
+    "locationDescription": "Jodhpur outskirts, 5 km from Mehrangarh Fort — set in a 12th-century garden",
+    "description": "A heritage property on the banks of Bal Samand Lake, offering palace-style rooms, lush gardens, a pool, and a terrace restaurant with fort views. An authentic heritage experience at a mid-range price point.",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Mehrangarh_Fort_Jodhpur.jpg/640px-Mehrangarh_Fort_Jodhpur.jpg"
+  },
+  {
+    "id": "RAJASTHAN-LUX-01",
+    "destination": "Rajasthan",
+    "name": "Umaid Bhawan Palace (Taj)",
+    "tier": "Luxury",
+    "locationDescription": "Jodhpur city centre — a living royal palace, part Taj hotel",
+    "description": "One of the world's finest palace hotels, still the official residence of the Jodhpur royal family. Features opulent Art Deco suites, a 50-metre pool in a former indoor tennis court, and butler service. An unmatchable Rajasthan experience.",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Umaid_Bhawan_Palace.jpg/640px-Umaid_Bhawan_Palace.jpg"
+  },
+
+  {
+    "id": "ANDAMAN-BUDGET-01",
+    "destination": "Andaman Islands",
+    "name": "Teal House (Port Blair)",
+    "tier": "Budget",
+    "locationDescription": "Port Blair town, 10 min from Cellular Jail and Aberdeen Bazaar",
+    "description": "A clean, well-reviewed guesthouse with AC rooms, free Wi-Fi, and a helpful host who arranges inter-island permits and ferry bookings. Best base for budget travellers exploring Port Blair before moving to Havelock.",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Cellular_Jail_Andaman.jpg/640px-Cellular_Jail_Andaman.jpg"
+  },
+  {
+    "id": "ANDAMAN-MID-01",
+    "destination": "Andaman Islands",
+    "name": "Symphony Palms Beach Resort",
+    "tier": "Mid-range",
+    "locationDescription": "Havelock Island (Swaraj Dweep), Radhanagar Beach area",
+    "description": "A comfortable beach resort with sea-facing cottages, a restaurant serving fresh seafood, and easy access to the award-winning Radhanagar Beach. Arranges snorkelling, scuba, and elephant beach day trips.",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/Radhanagar_beach_Andaman.jpg/640px-Radhanagar_beach_Andaman.jpg"
+  },
+  {
+    "id": "ANDAMAN-LUX-01",
+    "destination": "Andaman Islands",
+    "name": "Taj Exotica Resort & Spa, Andaman",
+    "tier": "Luxury",
+    "locationDescription": "Havelock Island (Swaraj Dweep), beachfront on Radhanagar Beach",
+    "description": "The most luxurious property in the Andamans — private pool villas and sea-view rooms directly on Radhanagar Beach (Asia's best beach, Time Magazine 2004). Full-service spa, PADI dive centre, and curated island experiences.",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Andaman_Islands_beach.jpg/640px-Andaman_Islands_beach.jpg"
+  }
+]

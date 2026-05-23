@@ -11,6 +11,7 @@ builder.AddServiceDefaults();
 builder.Services.AddSingleton<TourCatalogService>();
 builder.Services.AddSingleton<BookingInquiryService>();
 builder.Services.AddSingleton<DestinationService>();
+builder.Services.AddSingleton<HotelService>();
 builder.Services.AddSingleton<PromotionService>();
 builder.Services.AddSingleton<PolicyService>();
 
