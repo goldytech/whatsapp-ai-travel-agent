@@ -48,6 +48,8 @@ public static class WahaResourceBuilderExtensions
             .WithEnvironment("WAHA_DASHBOARD_PASSWORD", dashboardPassword)
             .WithEnvironment("WHATSAPP_SWAGGER_USERNAME", "admin")
             .WithEnvironment("WHATSAPP_SWAGGER_PASSWORD", swaggerPassword)
+            // Explicitly declare the engine so multi-engine images use the correct one.
+            .WithEnvironment("WHATSAPP_DEFAULT_ENGINE", engine.ToString())
             .WithHttpHealthCheck("/ping")
             .ExcludeFromManifest();
 

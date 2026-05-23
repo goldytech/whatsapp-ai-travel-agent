@@ -8,7 +8,10 @@ var wahaDashboardPassword = builder.AddParameter("wahaDashboardPassword", secret
 var wahaSwaggerPassword = builder.AddParameter("wahaSwaggerPassword", secret: true);
 
 // ─── WAHA Container (custom Aspire integration) ───────────────────────────────
-var waha = builder.AddWaha("waha", wahaApiKey, wahaDashboardPassword, wahaSwaggerPassword)
+// WEBJS engine is required: NOWEB (free tier) does not support /api/sendImage.
+// WEBJS (Chromium-based, free tier) supports full media sending including images.
+var waha = builder.AddWaha("waha", wahaApiKey, wahaDashboardPassword, wahaSwaggerPassword,
+        engine: WahaEngine.WEBJS)
     .WithDataVolume()
     .WithPersistentLifetime();
 
