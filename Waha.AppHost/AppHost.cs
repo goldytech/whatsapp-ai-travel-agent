@@ -8,10 +8,15 @@ var wahaDashboardPassword = builder.AddParameter("wahaDashboardPassword", secret
 var wahaSwaggerPassword = builder.AddParameter("wahaSwaggerPassword", secret: true);
 
 // ─── WAHA Container (custom Aspire integration) ───────────────────────────────
-// WEBJS engine is required: NOWEB (free tier) does not support /api/sendImage.
-// WEBJS (Chromium-based, free tier) supports full media sending including images.
+// NOWEB engine: WebSocket-based, no Chromium browser, lightweight (~50MB RAM).
+// sendImage is available with WAHA Plus; sendList/sendButtons require WEBJS engine (not used here).
+// Tier: read from config ("Core" = free, "Plus" = paid). Defaults to Core.
+// To enable Plus: dotnet user-secrets set "WahaTier" "Plus" --project Waha.AppHost
+var wahaTier = builder.Configuration["WahaTier"] is "Plus" ? WahaTier.Plus : WahaTier.Core;
+
 var waha = builder.AddWaha("waha", wahaApiKey, wahaDashboardPassword, wahaSwaggerPassword,
-        engine: WahaEngine.WEBJS)
+        engine: WahaEngine.NOWEB,
+        tier: wahaTier)
     .WithDataVolume()
     .WithPersistentLifetime();
 
@@ -34,6 +39,7 @@ var webhookApi = builder.AddProject<Waha_WebApi>("webhook")
     .WithReference(mcpServer)
     .WithReference(aiFoundry)
     .WithEnvironment("WAHA_API_KEY", wahaApiKey)
+    .WithEnvironment("WAHA_TIER", wahaTier.ToString())
     .WithEnvironment("WEBHOOK_BASE_URL",
         builder.Configuration["WEBHOOK_BASE_URL"] ?? string.Empty)
     .WaitFor(waha)

@@ -1,4 +1,4 @@
-<Project Sdk="Aspire.AppHost.Sdk/13.3.3">
+<Project Sdk="Aspire.AppHost.Sdk/13.3.5">
 
     <ItemGroup>
       <ProjectReference Include="..\Waha.WebApi\Waha.WebApi.csproj" />
@@ -8,7 +8,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Aspire.Hosting.DevTunnels" Version="13.3.3" />
+      <PackageReference Include="Aspire.Hosting.DevTunnels" Version="13.3.5" />
       <PackageReference Include="CommunityToolkit.Aspire.Hosting.McpInspector" Version="13.3.0" />
     </ItemGroup>
 

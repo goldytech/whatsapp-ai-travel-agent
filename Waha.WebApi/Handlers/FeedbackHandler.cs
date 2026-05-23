@@ -29,7 +29,7 @@ public sealed class FeedbackHandler(
             "4️⃣  — Good\n" +
             "5️⃣  — Excellent\n\n" +
             "Just reply with *1*, *2*, *3*, *4*, or *5* 👆",
-            ct).ConfigureAwait(false);
+            ct: ct).ConfigureAwait(false);
     }
 
     public async Task HandleRatingResponseAsync(string chatId, string ratingText, CancellationToken ct = default)
@@ -40,7 +40,7 @@ public sealed class FeedbackHandler(
         {
             await wahaClient.SendTextAsync(chatId,
                 "Please reply with a number between *1* and *5* to rate your experience. 🙏",
-                ct).ConfigureAwait(false);
+                ct: ct).ConfigureAwait(false);
             return;
         }
 
@@ -53,7 +53,7 @@ public sealed class FeedbackHandler(
         await wahaClient.SendTextAsync(chatId,
             $"🎉 *Welcome back from your {tripName} adventure!*\n\n" +
             "We hope you had an amazing time! Your feedback helps us improve. 🙏",
-            ct).ConfigureAwait(false);
+            ct: ct).ConfigureAwait(false);
 
         await SendFeedbackPollAsync(chatId, ct).ConfigureAwait(false);
     }
@@ -89,7 +89,7 @@ public sealed class FeedbackHandler(
                 "We're thrilled you had a great experience! Would you consider leaving us a Google review? " +
                 "It takes just 1 minute and helps others discover us:\n\n" +
                 $"👉 {GoogleReviewLink}",
-                ct).ConfigureAwait(false);
+                ct: ct).ConfigureAwait(false);
         }
         else
         {
@@ -98,7 +98,7 @@ public sealed class FeedbackHandler(
                 "We're sorry your experience wasn't perfect. Our team will reach out to you shortly to understand " +
                 "how we can do better.\n\n" +
                 "📞 You can also reach us directly: +91 98765 43210",
-                ct).ConfigureAwait(false);
+                ct: ct).ConfigureAwait(false);
         }
     }
 }

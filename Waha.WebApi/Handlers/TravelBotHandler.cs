@@ -5,7 +5,7 @@ namespace Waha.WebApi.Handlers;
 public sealed class TravelBotHandler(WahaApiClient wahaClient)
 {
     public Task SendEchoAsync(string chatId, string text, CancellationToken ct = default) =>
-        wahaClient.SendTextAsync(chatId, text, ct);
+        wahaClient.SendTextAsync(chatId, text, ct: ct);
 
     public async Task SendDepartureReminderAsync(string chatId, string tourName, int daysUntilDeparture, CancellationToken ct = default)
     {
@@ -24,6 +24,6 @@ public sealed class TravelBotHandler(WahaApiClient wahaClient)
             _ => $"⏰ *{daysUntilDeparture} days to your {tourName} trip!* Are you excited? 🎒"
         };
 
-        await wahaClient.SendTextAsync(chatId, message, ct).ConfigureAwait(false);
+        await wahaClient.SendTextAsync(chatId, message, ct: ct).ConfigureAwait(false);
     }
 }

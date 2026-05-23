@@ -8,7 +8,8 @@ namespace Aspire.Hosting;
 /// </summary>
 public static class WahaResourceBuilderExtensions
 {
-    private const string Image = "devlikeapro/waha";
+    private const string ImageCore = "devlikeapro/waha";
+    private const string ImagePlus = "devlikeapro/waha-plus";
     private const string SessionsVolumeMountPath = "/app/.sessions";
 
     /// <summary>
@@ -19,7 +20,14 @@ public static class WahaResourceBuilderExtensions
     /// <param name="apiKey">Secret parameter for <c>WAHA_API_KEY</c>.</param>
     /// <param name="dashboardPassword">Secret parameter for the dashboard password.</param>
     /// <param name="swaggerPassword">Secret parameter for the Swagger UI password.</param>
-    /// <param name="engine">The WAHA engine to use. Defaults to <see cref="WahaEngine.NOWEB"/>.</param>
+    /// <param name="engine">The WAHA engine to use. Defaults to <see cref="WahaEngine.NOWEB"/> (WebSocket-based, no browser).</param>
+    /// <param name="tier">
+    /// The WAHA subscription tier. <see cref="WahaTier.Core"/> (default) uses the free
+    /// <c>devlikeapro/waha</c> image. <see cref="WahaTier.Plus"/> uses the paid
+    /// <c>devlikeapro/waha-plus</c> image which enables <c>sendImage</c>, <c>sendFile</c>,
+    /// <c>sendVoice</c>, and <c>sendVideo</c>. Requires a prior <c>docker login</c> with
+    /// your Patreon key to pull the private image.
+    /// </param>
     /// <param name="port">Optional host port mapping (defaults to any free port).</param>
     public static IResourceBuilder<WahaResource> AddWaha(
         this IDistributedApplicationBuilder builder,
@@ -28,6 +36,7 @@ public static class WahaResourceBuilderExtensions
         IResourceBuilder<ParameterResource> dashboardPassword,
         IResourceBuilder<ParameterResource> swaggerPassword,
         WahaEngine engine = WahaEngine.NOWEB,
+        WahaTier tier = WahaTier.Core,
         int? port = null)
     {
         ArgumentNullException.ThrowIfNull(builder);
@@ -37,11 +46,12 @@ public static class WahaResourceBuilderExtensions
         ArgumentNullException.ThrowIfNull(swaggerPassword);
 
         var resource = new WahaResource(name);
+        var image = tier == WahaTier.Plus ? ImagePlus : ImageCore;
         var tag = ResolveImageTag(engine);
 
         var resourceBuilder = builder
             .AddResource(resource)
-            .WithAnnotation(new ContainerImageAnnotation { Image = Image, Tag = tag })
+            .WithAnnotation(new ContainerImageAnnotation { Image = image, Tag = tag })
             .WithHttpEndpoint(port: port, targetPort: 3000, name: WahaResource.HttpEndpointName)
             .WithEnvironment("WAHA_API_KEY", apiKey)
             .WithEnvironment("WAHA_DASHBOARD_USERNAME", "admin")

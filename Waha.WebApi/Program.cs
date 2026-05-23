@@ -28,7 +28,21 @@ builder.Services.AddHttpClient("mcpserver", client =>
 builder.AddAzureChatCompletionsClient(connectionName: "ai-foundry")
     .AddChatClient("gpt-5.4-mini");
 
-// ─── AI Agent Services ────────────────────────────────────────────────────────
+// ─── WAHA Send Service (tier-aware strategy pattern) ─────────────────────────
+// CoreWahaSendService — free tier: sendImage falls back to text with linkPreview,
+//   sendList/sendButtons formatted as numbered text.
+// PlusWahaSendService — paid tier: sendImage uses native /api/sendImage;
+//   sendList/sendButtons attempt native APIs with text fallback on engine error.
+// Active implementation is selected based on WAHA_TIER env var (propagated from AppHost).
+builder.Services.AddKeyedSingleton<IWahaSendService, CoreWahaSendService>("Core");
+builder.Services.AddSingleton<CoreWahaSendService>(); // needed by PlusWahaSendService as fallback
+builder.Services.AddKeyedSingleton<IWahaSendService, PlusWahaSendService>("Plus");
+builder.Services.AddSingleton<IWahaSendService>(sp =>
+{
+    var tier = builder.Configuration["WAHA_TIER"] ?? "Core";
+    return sp.GetRequiredKeyedService<IWahaSendService>(tier);
+});
+
 builder.Services.AddSingleton<McpClientProvider>();
 builder.Services.AddSingleton<AgentSessionStore>();
 builder.Services.AddSingleton<TravelAgentFactory>();

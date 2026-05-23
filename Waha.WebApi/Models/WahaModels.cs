@@ -31,6 +31,7 @@ public record WahaPollVote(
 public record SendTextRequest(
     [property: JsonPropertyName("chatId")] string ChatId,
     [property: JsonPropertyName("text")] string Text,
+    [property: JsonPropertyName("linkPreview")] bool? LinkPreview = null,
     [property: JsonPropertyName("session")] string Session = "default"
 );
 

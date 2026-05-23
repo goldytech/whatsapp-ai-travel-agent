@@ -6,9 +6,9 @@ public sealed class WahaApiClient(
 {
     // ─── Messaging ───────────────────────────────────────────────────────────
 
-    public async Task SendTextAsync(string chatId, string text, CancellationToken ct = default)
+    public async Task SendTextAsync(string chatId, string text, bool? linkPreview = null, CancellationToken ct = default)
     {
-        var request = new SendTextRequest(chatId, text);
+        var request = new SendTextRequest(chatId, text, linkPreview);
         await PostAsync("/api/sendText", request, ct).ConfigureAwait(false);
     }
 

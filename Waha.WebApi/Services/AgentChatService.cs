@@ -9,12 +9,12 @@ namespace Waha.WebApi.Services;
 ///   2. Deserialize back into an <see cref="AgentSession"/> (carries full conversation history)
 ///   3. Run Aria against the incoming message
 ///   4. Serialize the updated session back to the store
-///   5. Dispatch the AI reply via WhatsApp — images first, then text — using <see cref="WahaApiClient"/>
+///   5. Dispatch the AI reply via WhatsApp — images first, then text — using <see cref="IWahaSendService"/>
 /// </summary>
 public sealed partial class AgentChatService(
     TravelAgentFactory agentFactory,
     AgentSessionStore sessionStore,
-    WahaApiClient wahaClient,
+    IWahaSendService sendService,
     IConfiguration config,
     ILogger<AgentChatService> logger)
 {
@@ -52,7 +52,7 @@ public sealed partial class AgentChatService(
             // Fallback: send a graceful error message to the customer
             try
             {
-                await wahaClient.SendTextAsync(
+                await sendService.SendTextAsync(
                     phoneNumber,
                     "Apologies, I'm having trouble right now 😔 Please try again in a moment, or call us at +91-99999-99999.",
                     CancellationToken.None).ConfigureAwait(false);
@@ -95,7 +95,7 @@ public sealed partial class AgentChatService(
 
             try
             {
-                await wahaClient.SendImageAsync(phoneNumber, url, caption, ct).ConfigureAwait(false);
+                await sendService.SendImageAsync(phoneNumber, url, caption, ct).ConfigureAwait(false);
                 await Task.Delay(750, ct).ConfigureAwait(false); // preserve order; avoid WhatsApp spam detection
             }
             catch (Exception ex)
@@ -106,6 +106,6 @@ public sealed partial class AgentChatService(
 
         var textReply = ImageMarker().Replace(rawReply, string.Empty).Trim();
         if (!string.IsNullOrWhiteSpace(textReply))
-            await wahaClient.SendTextAsync(phoneNumber, textReply, ct).ConfigureAwait(false);
+            await sendService.SendTextAsync(phoneNumber, textReply, ct).ConfigureAwait(false);
     }
 }
