@@ -1,0 +1,7 @@
+# Treat image files as binary — prevents CRLF normalisation
+*.jpg    binary
+*.jpeg   binary
+*.png    binary
+*.gif    binary
+*.webp   binary
+*.ico    binary

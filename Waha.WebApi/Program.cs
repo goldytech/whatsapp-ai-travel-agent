@@ -55,6 +55,7 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 var app = builder.Build();
 
 app.MapDefaultEndpoints();
+app.MapStaticAssets();
 app.MapWebhookEndpoints();
 
 app.Run();

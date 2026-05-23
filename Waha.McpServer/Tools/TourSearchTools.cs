@@ -40,7 +40,11 @@ public class TourSearchTools(TourCatalogService catalog)
             ? string.Join(", ", tour.Availability.Select(kv => $"{kv.Key}: {kv.Value} slots"))
             : "Contact us for availability.";
 
+        var imageMarkers = string.Join("\n",
+            tour.ImageUrls.Take(3).Select(u => $"{{{{image:{u}|{tour.Name}}}}}"));
+
         return $"""
+            {imageMarkers}
             *{tour.Name}* 🗺️
             📍 {tour.Destination} | ⏱ {tour.Duration} | 💰 ₹{tour.Price:N0}/person
             Single supplement: ₹{tour.SingleSupplement:N0}

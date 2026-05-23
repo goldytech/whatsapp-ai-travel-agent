@@ -15,10 +15,11 @@ public sealed partial class AgentChatService(
     TravelAgentFactory agentFactory,
     AgentSessionStore sessionStore,
     WahaApiClient wahaClient,
+    IConfiguration config,
     ILogger<AgentChatService> logger)
 {
-    // Matches {{image:https://...}} or {{image:https://...|caption text}}
-    [GeneratedRegex(@"\{\{image:(?<url>https?://[^\}|]+?)(?:\|(?<caption>[^\}]*))?\}\}")]
+    // Matches {{image:URL}} or {{image:URL|caption}} where URL is absolute (https?://) or relative (images/...)
+    [GeneratedRegex(@"\{\{image:(?<url>https?://[^\}|]+?|[^/\}][^\}|]*?)(?:\|(?<caption>[^\}]*))?\}\}")]
     private static partial Regex ImageMarker();
 
     public async Task HandleAsync(string phoneNumber, string userMessage, CancellationToken ct = default)
@@ -65,9 +66,12 @@ public sealed partial class AgentChatService(
     }
 
     /// <summary>
-    /// Parses <c>{{image:URL}}</c> or <c>{{image:URL|caption}}</c> markers embedded by Aria,
-    /// sends each image via <see cref="WahaApiClient.SendImageAsync"/>, then sends the
-    /// remaining text (markers stripped) via <see cref="WahaApiClient.SendTextAsync"/>.
+    /// Parses <c>{{image:URL}}</c> or <c>{{image:URL|caption}}</c> markers embedded by Aria.
+    /// Relative URLs (e.g. <c>images/tours/goa/1.jpg</c>) are expanded to absolute using
+    /// <c>WEBHOOK_BASE_URL</c> so WAHA can fetch them over the public DevTunnel.
+    /// Images are sent sequentially with a 750 ms gap to preserve display order and avoid
+    /// WhatsApp anti-spam detection (Baileys has no internal send queue; concurrent sends
+    /// race on CDN upload and arrive out of order).
     /// Image failures are logged at Warning and never block the text reply.
     /// </summary>
     private async Task SendReplyAsync(string phoneNumber, string rawReply, CancellationToken ct)
@@ -79,9 +83,20 @@ public sealed partial class AgentChatService(
             var url = match.Groups["url"].Value.Trim();
             var caption = match.Groups["caption"].Success ? match.Groups["caption"].Value.Trim() : null;
 
+            // Expand relative paths → absolute URL using the public DevTunnel base
+            if (!url.StartsWith("http", StringComparison.OrdinalIgnoreCase))
+            {
+                var baseUrl = config["WEBHOOK_BASE_URL"]
+                    ?? config["WEBHOOK_HTTPS"]
+                    ?? config["services:webhook:https:0"]
+                    ?? string.Empty;
+                url = $"{baseUrl.TrimEnd('/')}/{url.TrimStart('/')}";
+            }
+
             try
             {
                 await wahaClient.SendImageAsync(phoneNumber, url, caption, ct).ConfigureAwait(false);
+                await Task.Delay(750, ct).ConfigureAwait(false); // preserve order; avoid WhatsApp spam detection
             }
             catch (Exception ex)
             {

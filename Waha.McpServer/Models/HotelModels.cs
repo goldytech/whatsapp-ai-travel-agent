@@ -7,5 +7,5 @@ public record Hotel(
     string Tier,
     string LocationDescription,
     string Description,
-    string? ImageUrl
+    string[] ImageUrls
 );

@@ -8,7 +8,7 @@ public record Tour(
     Dictionary<string, int> Availability,
     DayProgram[] Itinerary,
     Review[] Reviews,
-    string ImageUrl
+    string[] ImageUrls
 );
 
 public record DayProgram(int Day, string Title, string Activities);
