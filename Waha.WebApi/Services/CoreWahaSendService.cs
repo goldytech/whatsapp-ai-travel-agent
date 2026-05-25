@@ -1,4 +1,5 @@
 using System.Text;
+using Microsoft.Extensions.Configuration;
 using Waha.WebApi.Models;
 
 namespace Waha.WebApi.Services;
@@ -7,29 +8,50 @@ namespace Waha.WebApi.Services;
 /// WAHA Core (free tier) implementation of <see cref="IWahaSendService"/>.
 /// All Plus-only features fall back to rich text equivalents:
 /// <list type="bullet">
-///   <item><see cref="SendImageAsync"/>: sends the URL as text with <c>linkPreview: true</c>
-///   so WhatsApp renders a native link-preview card.</item>
+///   <item><see cref="SendImageAsync"/>: wraps the image URL in a <c>/preview</c> page
+///   that serves Open Graph meta tags. WhatsApp's link-preview crawler fetches the page
+///   and renders a native preview card with the actual image visible in chat.</item>
 ///   <item><see cref="SendListAsync"/>: formats sections as numbered emoji lists.</item>
 ///   <item><see cref="SendButtonsAsync"/>: formats buttons as numbered text options.</item>
 /// </list>
 /// </summary>
-public sealed class CoreWahaSendService(WahaApiClient wahaClient) : IWahaSendService
+public sealed class CoreWahaSendService(WahaApiClient wahaClient, IConfiguration config) : IWahaSendService
 {
     public Task SendTextAsync(string chatId, string text, CancellationToken ct = default)
         => wahaClient.SendTextAsync(chatId, text, ct: ct);
 
     /// <summary>
-    /// Sends the image URL as a text message with <c>linkPreview: true</c>.
-    /// WhatsApp fetches the URL and renders a native preview card — the best available
-    /// experience without WAHA Plus. The caption is prepended if provided.
+    /// Sends the image as a WhatsApp link-preview card by wrapping the image URL
+    /// in a <c>/preview</c> HTML page that exposes <c>og:image</c> meta tags.
+    /// WhatsApp's crawler fetches the page and renders the image as a preview card.
+    /// Falls back to sending the raw URL as text if the base URL is not configured.
     /// </summary>
     public async Task SendImageAsync(string chatId, string imageUrl, string? caption = null, CancellationToken ct = default)
     {
+        var previewUrl = BuildPreviewUrl(imageUrl, caption);
         var text = string.IsNullOrWhiteSpace(caption)
-            ? imageUrl
-            : $"🖼️ *{caption}*\n{imageUrl}";
+            ? previewUrl
+            : $"🖼️ *{caption}*\n{previewUrl}";
 
         await wahaClient.SendTextAsync(chatId, text, linkPreview: true, ct: ct).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Builds a <c>/preview?imageUrl=...&amp;title=...</c> URL so WhatsApp's OG crawler
+    /// can read the image. Falls back to the raw <paramref name="imageUrl"/> when the
+    /// public base URL is not yet configured (e.g., first startup before tunnel warms up).
+    /// </summary>
+    private string BuildPreviewUrl(string imageUrl, string? caption)
+    {
+        var baseUrl = config["WEBHOOK_BASE_URL"]
+            ?? config["WEBHOOK_HTTPS"]
+            ?? config["services:webhook:https:0"];
+
+        if (string.IsNullOrWhiteSpace(baseUrl))
+            return imageUrl; // tunnel not yet available — degrade gracefully
+
+        var query = $"imageUrl={Uri.EscapeDataString(imageUrl)}&title={Uri.EscapeDataString(caption ?? "Royal Journeys")}";
+        return $"{baseUrl.TrimEnd('/')}/preview?{query}";
     }
 
     /// <summary>

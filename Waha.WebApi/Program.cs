@@ -71,5 +71,6 @@ var app = builder.Build();
 app.MapDefaultEndpoints();
 app.MapStaticAssets();
 app.MapWebhookEndpoints();
+app.MapPreviewEndpoint();
 
 app.Run();
