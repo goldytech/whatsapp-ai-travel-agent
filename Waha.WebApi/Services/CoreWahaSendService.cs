@@ -50,9 +50,35 @@ public sealed class CoreWahaSendService(WahaApiClient wahaClient, IConfiguration
         if (string.IsNullOrWhiteSpace(baseUrl))
             return imageUrl; // tunnel not yet available — degrade gracefully
 
-        var query = $"imageUrl={Uri.EscapeDataString(imageUrl)}&title={Uri.EscapeDataString(caption ?? "Royal Journeys")}";
+        var previewImageUrl = ToLocalImagePath(imageUrl, baseUrl) ?? imageUrl;
+        var query = $"imageUrl={Uri.EscapeDataString(previewImageUrl)}&title={Uri.EscapeDataString(caption ?? "Royal Journeys")}";
         return $"{baseUrl.TrimEnd('/')}/preview?{query}";
     }
+
+    private static string? ToLocalImagePath(string imageUrl, string baseUrl)
+    {
+        if (!Uri.TryCreate(baseUrl.TrimEnd('/') + "/", UriKind.Absolute, out var baseUri))
+            return null;
+
+        if (!Uri.TryCreate(imageUrl, UriKind.Absolute, out var imageUri))
+        {
+            var relativePath = "/" + imageUrl.TrimStart('/');
+            return IsImagePath(relativePath) ? relativePath.TrimStart('/') : null;
+        }
+
+        if (!imageUri.Scheme.Equals(baseUri.Scheme, StringComparison.OrdinalIgnoreCase)
+            || !imageUri.Host.Equals(baseUri.Host, StringComparison.OrdinalIgnoreCase)
+            || imageUri.Port != baseUri.Port
+            || !IsImagePath(imageUri.AbsolutePath))
+            return null;
+
+        return imageUri.AbsolutePath.TrimStart('/');
+    }
+
+    private static bool IsImagePath(string path)
+        => path.StartsWith("/images/", StringComparison.OrdinalIgnoreCase)
+            && !path.Contains("/../", StringComparison.Ordinal)
+            && !path.EndsWith("/..", StringComparison.Ordinal);
 
     /// <summary>
     /// Formats an interactive list as a numbered emoji text message since

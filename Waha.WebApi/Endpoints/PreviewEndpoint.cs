@@ -10,23 +10,22 @@ namespace Waha.WebApi.Endpoints;
 /// visual image experience without WAHA Plus's <c>/api/sendImage</c>.
 /// </para>
 /// <para>
-/// Security: <c>imageUrl</c> is validated to be same-origin (must start with the
-/// request host). External URLs are rejected with <c>400 Bad Request</c>.
+/// Security: <c>imageUrl</c> is validated as a local static image path under
+/// <c>/images/</c>. Absolute URLs are accepted only when they point at this app's
+/// configured public origin.
 /// </para>
 /// </summary>
 public static class PreviewEndpoint
 {
     public static IEndpointRouteBuilder MapPreviewEndpoint(this IEndpointRouteBuilder app)
     {
-        app.MapGet("/preview", (HttpRequest request, string imageUrl, string? title, string? description) =>
+        app.MapGet("/preview", (HttpRequest request, IConfiguration config, string imageUrl, string? title, string? description) =>
         {
-            // Only allow same-origin image URLs to prevent open-redirect / SSRF
-            var origin = $"{request.Scheme}://{request.Host}";
-            if (!imageUrl.StartsWith(origin, StringComparison.OrdinalIgnoreCase))
-                return Results.BadRequest("imageUrl must be same-origin.");
+            if (!TryBuildLocalImageUri(request, config, imageUrl, out var imageUri))
+                return Results.BadRequest("imageUrl must point to a local /images/ asset.");
 
             var enc = HtmlEncoder.Default;
-            var safeImage = enc.Encode(imageUrl);
+            var safeImage = enc.Encode(imageUri.ToString());
             var safeTitle = enc.Encode(title ?? "Royal Journeys");
             var safeDesc = enc.Encode(description ?? "Discover amazing tour packages with Royal Journeys.");
 
@@ -59,4 +58,88 @@ public static class PreviewEndpoint
 
         return app;
     }
+
+    private static bool TryBuildLocalImageUri(HttpRequest request, IConfiguration config, string imageUrl, out Uri imageUri)
+    {
+        imageUri = default!;
+
+        if (string.IsNullOrWhiteSpace(imageUrl))
+            return false;
+
+        if (!TryGetPublicBaseUri(request, config, out var publicBaseUri))
+            return false;
+
+        var trimmedImageUrl = imageUrl.Trim();
+
+        if (Uri.TryCreate(trimmedImageUrl, UriKind.Absolute, out var absoluteImageUri))
+        {
+            if (!IsHttpUri(absoluteImageUri)
+                || !IsSameOrigin(absoluteImageUri, publicBaseUri)
+                || !TryGetSafeImagePath(absoluteImageUri.AbsolutePath, out var imagePath))
+                return false;
+
+            imageUri = new Uri(publicBaseUri, imagePath);
+            return true;
+        }
+
+        if (!TryGetSafeImagePath(trimmedImageUrl, out var relativeImagePath))
+            return false;
+
+        imageUri = new Uri(publicBaseUri, relativeImagePath);
+        return true;
+    }
+
+    private static bool TryGetPublicBaseUri(HttpRequest request, IConfiguration config, out Uri publicBaseUri)
+    {
+        publicBaseUri = default!;
+
+        var candidates = new[]
+        {
+            config["WEBHOOK_BASE_URL"],
+            config["WEBHOOK_HTTPS"],
+            config["services:webhook:https:0"],
+            $"{request.Scheme}://{request.Host}"
+        };
+
+        foreach (var candidate in candidates)
+        {
+            if (string.IsNullOrWhiteSpace(candidate)
+                || !Uri.TryCreate(candidate.TrimEnd('/') + "/", UriKind.Absolute, out var uri)
+                || !IsHttpUri(uri))
+                continue;
+
+            publicBaseUri = uri;
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool TryGetSafeImagePath(string value, out string imagePath)
+    {
+        imagePath = string.Empty;
+
+        var path = Uri.UnescapeDataString(value.Trim());
+        if (string.IsNullOrWhiteSpace(path) || path.StartsWith("//", StringComparison.Ordinal) || path.Contains('\\'))
+            return false;
+
+        path = "/" + path.TrimStart('/');
+
+        if (!path.StartsWith("/images/", StringComparison.OrdinalIgnoreCase)
+            || path.Contains("/../", StringComparison.Ordinal)
+            || path.EndsWith("/..", StringComparison.Ordinal)
+            || !Uri.TryCreate(path, UriKind.RelativeOrAbsolute, out _))
+            return false;
+
+        imagePath = path;
+        return true;
+    }
+
+    private static bool IsSameOrigin(Uri left, Uri right)
+        => left.Scheme.Equals(right.Scheme, StringComparison.OrdinalIgnoreCase)
+            && left.Host.Equals(right.Host, StringComparison.OrdinalIgnoreCase)
+            && left.Port == right.Port;
+
+    private static bool IsHttpUri(Uri uri)
+        => uri.Scheme is "http" or "https";
 }
