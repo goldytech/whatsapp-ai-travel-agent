@@ -27,7 +27,7 @@ public class HotelTools(HotelService hotelService)
             lines.AppendLine($"📍 {hotel.LocationDescription}");
             lines.AppendLine(hotel.Description);
 
-            foreach (var imgUrl in hotel.ImageUrls.Take(2))
+            foreach (var imgUrl in hotel.ImageUrls.Take(1))
                 lines.AppendLine($"{{{{image:{imgUrl}|{hotel.Name} ({hotel.Tier})}}}}");
 
             lines.AppendLine();

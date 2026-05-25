@@ -40,8 +40,15 @@ builder.Services.AddSingleton<CoreWahaSendService>(); // needed by PlusWahaSendS
 builder.Services.AddKeyedSingleton<IWahaSendService, PlusWahaSendService>("Plus");
 builder.Services.AddSingleton<IWahaSendService>(sp =>
 {
-    var tier = builder.Configuration["WAHA_TIER"] ?? "Core";
-    return sp.GetRequiredKeyedService<IWahaSendService>(tier);
+    var tierStr = (builder.Configuration["WAHA_TIER"] ?? string.Empty).Trim();
+    var key = tierStr.Equals("Plus", StringComparison.OrdinalIgnoreCase) ? "Plus" : "Core";
+    if (!string.IsNullOrEmpty(tierStr) && !key.Equals(tierStr, StringComparison.OrdinalIgnoreCase))
+    {
+        sp.GetRequiredService<ILoggerFactory>()
+          .CreateLogger("WahaConfig")
+          .LogWarning("Unknown WAHA_TIER value '{Tier}' — defaulting to Core", tierStr);
+    }
+    return sp.GetRequiredKeyedService<IWahaSendService>(key);
 });
 
 builder.Services.AddSingleton<McpClientProvider>();
@@ -68,9 +75,15 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 });
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {
-    options.ForwardedHeaders = ForwardedHeaders.XForwardedHost | ForwardedHeaders.XForwardedProto;
+    // Forward only XForwardedProto so Kestrel reports https when behind DevTunnel.
+    // XForwardedHost is intentionally omitted — PreviewEndpoint uses WEBHOOK_BASE_URL as the
+    // authoritative public host, so a spoofed X-Forwarded-Host header has no effect.
+    // KnownIPNetworks/KnownProxies are cleared because Azure DevTunnel uses dynamic IPs.
+    // ForwardLimit = 1 prevents header-peeling attacks by accepting exactly one proxy hop.
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedProto;
     options.KnownIPNetworks.Clear();
     options.KnownProxies.Clear();
+    options.ForwardLimit = 1;
 });
 
 var app = builder.Build();

@@ -10,7 +10,7 @@ namespace Waha.WebApi.Services;
 ///   Works with NOWEB engine on Plus.</item>
 ///   <item><see cref="SendListAsync"/>: calls <c>POST /api/sendList</c> — native WhatsApp list.
 ///   Only works with WEBJS/WPP engine; falls back to text if the API returns an error (NOWEB).</item>
-///   <item><see cref="SendButtonsAsync"/>: calls <c>POST /api/send/buttons/reply</c>.
+///   <item><see cref="SendButtonsAsync"/>: calls <c>POST /api/sendButtons</c>.
 ///   Only works with WEBJS engine; falls back to text on error (NOWEB).</item>
 /// </list>
 /// </summary>
@@ -44,7 +44,7 @@ public sealed class PlusWahaSendService(
         }
         catch (Exception ex)
         {
-            logger.LogWarning(ex, "sendList failed (not supported on this engine) — falling back to text for {ChatId}", chatId);
+            logger.LogWarning(ex, "sendList native API failed (engine may not support it) — falling back to text for {ChatId}", chatId);
             await coreFallback.SendListAsync(chatId, title, body, footer, buttonText, sections, ct)
                 .ConfigureAwait(false);
         }
@@ -63,7 +63,7 @@ public sealed class PlusWahaSendService(
         }
         catch (Exception ex)
         {
-            logger.LogWarning(ex, "sendButtons failed (not supported on this engine) — falling back to text for {ChatId}", chatId);
+            logger.LogWarning(ex, "sendButtons native API failed (engine may not support it) — falling back to text for {ChatId}", chatId);
             await coreFallback.SendButtonsAsync(chatId, body, buttons, ct).ConfigureAwait(false);
         }
     }

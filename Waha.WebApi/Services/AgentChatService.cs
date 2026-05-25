@@ -22,6 +22,39 @@ public sealed partial class AgentChatService(
     [GeneratedRegex(@"\{\{image:(?<url>https?://[^\}|]+?|[^/\}][^\}|]*?)(?:\|(?<caption>[^\}]*))?\}\}")]
     private static partial Regex ImageMarker();
 
+    /// <summary>
+    /// Returns true when <paramref name="path"/> is a safe local image path:
+    /// must be under <c>images/</c>, no directory traversal, no control or shell characters.
+    /// </summary>
+    private static bool IsLocalImagePath(string path) =>
+        !string.IsNullOrWhiteSpace(path)
+        && path.TrimStart('/').StartsWith("images/", StringComparison.OrdinalIgnoreCase)
+        && !path.Contains("..")
+        && !path.Contains("//")
+        && path.IndexOfAny(['\\', ':', '<', '>', '|', '"', '?', '*']) < 0;
+
+    /// <summary>
+    /// Returns true when <paramref name="url"/> is an absolute URL whose origin matches
+    /// the configured public base and whose path is a safe local image path.
+    /// When no base URL is configured the check is skipped (returns true).
+    /// </summary>
+    private bool IsSameOriginImageUrl(string url)
+    {
+        var publicBase = config["WEBHOOK_BASE_URL"]
+            ?? config["WEBHOOK_HTTPS"]
+            ?? config["services:webhook:https:0"];
+
+        if (publicBase is null) return true; // cannot validate without a known base
+
+        if (!Uri.TryCreate(url, UriKind.Absolute, out var uri)) return false;
+        if (!Uri.TryCreate(publicBase.TrimEnd('/'), UriKind.Absolute, out var baseUri)) return false;
+
+        return string.Equals(uri.Scheme, baseUri.Scheme, StringComparison.OrdinalIgnoreCase)
+            && string.Equals(uri.Host, baseUri.Host, StringComparison.OrdinalIgnoreCase)
+            && uri.Port == baseUri.Port
+            && IsLocalImagePath(uri.AbsolutePath);
+    }
+
     public async Task HandleAsync(string phoneNumber, string userMessage, CancellationToken ct = default)
     {
         try
@@ -83,14 +116,36 @@ public sealed partial class AgentChatService(
             var url = match.Groups["url"].Value.Trim();
             var caption = match.Groups["caption"].Success ? match.Groups["caption"].Value.Trim() : null;
 
-            // Expand relative paths → absolute URL using the public DevTunnel base
             if (!url.StartsWith("http", StringComparison.OrdinalIgnoreCase))
             {
+                // Validate relative path before expanding (prevent traversal / non-image paths)
+                if (!IsLocalImagePath(url))
+                {
+                    logger.LogWarning("Blocked unsafe image path in agent output: {Path}", url);
+                    continue;
+                }
+
                 var baseUrl = config["WEBHOOK_BASE_URL"]
                     ?? config["WEBHOOK_HTTPS"]
                     ?? config["services:webhook:https:0"]
                     ?? string.Empty;
+
+                if (string.IsNullOrEmpty(baseUrl))
+                {
+                    logger.LogWarning("Skipping image — WEBHOOK_BASE_URL not configured: {Path}", url);
+                    continue;
+                }
+
                 url = $"{baseUrl.TrimEnd('/')}/{url.TrimStart('/')}";
+            }
+            else
+            {
+                // Absolute URL — validate same-origin + safe path to prevent SSRF / prompt injection
+                if (!IsSameOriginImageUrl(url))
+                {
+                    logger.LogWarning("Blocked external or unsafe image URL in agent output (possible prompt injection): {Url}", url);
+                    continue;
+                }
             }
 
             try
