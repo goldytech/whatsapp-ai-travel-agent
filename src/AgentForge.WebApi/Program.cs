@@ -17,6 +17,13 @@ builder.Services.AddSingleton<IVerticalPluginLoader>(verticalPluginLoader);
 builder.Services.AddSingleton<IVerticalPlugin>(verticalPlugin);
 builder.Services.AddSingleton(verticalPlugin.Descriptor);
 builder.Services.AddSingleton<IVerticalDescriptor>(sp => sp.GetRequiredService<IVerticalPlugin>().Descriptor);
+builder.Services
+    .AddOptions<WahaWebhookSecurityOptions>()
+    .Configure(options => options.Secret = builder.Configuration["WAHA_WEBHOOK_SECRET"] ?? string.Empty)
+    .ValidateDataAnnotations()
+    .Validate(options => !string.IsNullOrWhiteSpace(options.Secret), "WAHA_WEBHOOK_SECRET is required.")
+    .ValidateOnStart();
+builder.Services.AddSingleton<WahaWebhookSignatureValidator>();
 
 // ─── WAHA HTTP Client ─────────────────────────────────────────────────────────
 // Resilience (retry=0, 5min total, circuit breaker) is set globally in ServiceDefaults.

@@ -12,6 +12,7 @@ namespace AgentForge.WebApi.Services;
 public sealed partial class WebhookRegistrationService(
     WahaApiClient wahaClient,
     IConfiguration config,
+    IHostEnvironment environment,
     ILogger<WebhookRegistrationService> logger) : BackgroundService
 {
     private volatile string? _registeredUrl;
@@ -33,10 +34,14 @@ public sealed partial class WebhookRegistrationService(
                 return; // Successfully registered — stop background loop
             }
 
-            logger.LogInformation(
-                "Tunnel URL not yet available. Will retry in 15s. " +
-                "Once the dev tunnel is healthy, webhook will be registered automatically. " +
-                "You can also POST /admin/register-webhook?url={{tunnelUrl}} to register manually.");
+            var retryMessage = environment.IsDevelopment()
+                ? "Tunnel URL not yet available. Will retry in 15s. " +
+                  "Once the dev tunnel is healthy, webhook will be registered automatically. " +
+                  "You can also POST /admin/register-webhook?url={{tunnelUrl}} to register manually."
+                : "Tunnel URL not yet available. Will retry in 15s. " +
+                  "Once the public webhook URL becomes available, webhook registration will be retried automatically.";
+
+            logger.LogInformation(retryMessage);
 
             await Task.Delay(TimeSpan.FromSeconds(15), ct).ConfigureAwait(false);
         }

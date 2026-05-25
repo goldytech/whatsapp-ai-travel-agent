@@ -2,6 +2,7 @@ namespace AgentForge.WebApi.Services;
 
 public sealed class WahaApiClient(
     HttpClient httpClient,
+    IOptions<WahaWebhookSecurityOptions> webhookSecurityOptions,
     ILogger<WahaApiClient> logger)
 {
     // ─── Messaging ───────────────────────────────────────────────────────────
@@ -85,7 +86,10 @@ public sealed class WahaApiClient(
         {
             config = new SessionConfigRequest(
             [
-                new WebhookConfig(webhookUrl, ["message", "session.status", "poll.vote"])
+                new WebhookConfig(
+                    webhookUrl,
+                    ["message", "session.status", "poll.vote"],
+                    new WebhookHmacConfig(webhookSecurityOptions.Value.Secret))
             ])
         };
 

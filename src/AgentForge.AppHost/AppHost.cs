@@ -13,6 +13,7 @@ var verticalPluginMountPath = $"{verticalPluginRoot.TrimEnd('/')}/{verticalId}";
 var wahaApiKey = builder.AddParameter("wahaApiKey", secret: true);
 var wahaDashboardPassword = builder.AddParameter("wahaDashboardPassword", secret: true);
 var wahaSwaggerPassword = builder.AddParameter("wahaSwaggerPassword", secret: true);
+var wahaWebhookSecret = builder.AddParameter("wahaWebhookSecret", secret: true);
 
 // ─── WAHA Container (custom Aspire integration) ───────────────────────────────
 // NOWEB engine: WebSocket-based, no Chromium browser, lightweight (~50MB RAM).
@@ -72,6 +73,7 @@ var webhookApi = builder.AddProject<AgentForge_WebApi>("webhook")
     .WithReference(mcpServer)
     .WithReference(aiFoundry)
     .WithEnvironment("WAHA_API_KEY", wahaApiKey)
+    .WithEnvironment("WAHA_WEBHOOK_SECRET", wahaWebhookSecret)
     .WithEnvironment("WAHA_TIER", wahaTier.ToString())
     .WithEnvironment("WEBHOOK_BASE_URL",
         builder.Configuration["WEBHOOK_BASE_URL"] ?? string.Empty)

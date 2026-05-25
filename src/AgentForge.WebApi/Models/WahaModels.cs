@@ -103,5 +103,10 @@ public record SessionConfigRequest(
 
 public record WebhookConfig(
     [property: JsonPropertyName("url")] string Url,
-    [property: JsonPropertyName("events")] string[] Events
+    [property: JsonPropertyName("events")] string[] Events,
+    [property: JsonPropertyName("hmac")] WebhookHmacConfig? Hmac = null
+);
+
+public record WebhookHmacConfig(
+    [property: JsonPropertyName("key")] string Key
 );
