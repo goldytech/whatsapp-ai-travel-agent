@@ -43,9 +43,7 @@ public sealed partial class AgentChatService(
     /// </summary>
     private bool IsSameOriginImageUrl(string url)
     {
-        var publicBase = config["WEBHOOK_BASE_URL"]
-            ?? config["WEBHOOK_HTTPS"]
-            ?? config["services:webhook:https:0"];
+        var publicBase = PublicWebhookUrlResolver.GetBaseUrl(config);
 
         if (publicBase is null) return true; // cannot validate without a known base
 
@@ -128,10 +126,7 @@ public sealed partial class AgentChatService(
                     continue;
                 }
 
-                var baseUrl = config["WEBHOOK_BASE_URL"]
-                    ?? config["WEBHOOK_HTTPS"]
-                    ?? config["services:webhook:https:0"]
-                    ?? string.Empty;
+                var baseUrl = PublicWebhookUrlResolver.GetBaseUrl(config) ?? string.Empty;
 
                 if (string.IsNullOrEmpty(baseUrl))
                 {

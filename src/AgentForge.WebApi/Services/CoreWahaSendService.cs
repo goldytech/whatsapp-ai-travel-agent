@@ -47,9 +47,7 @@ public sealed class CoreWahaSendService(
     /// </summary>
     private string BuildPreviewUrl(string imageUrl, string? caption)
     {
-        var baseUrl = config["WEBHOOK_BASE_URL"]
-            ?? config["WEBHOOK_HTTPS"]
-            ?? config["services:webhook:https:0"];
+        var baseUrl = PublicWebhookUrlResolver.GetBaseUrl(config);
 
         if (string.IsNullOrWhiteSpace(baseUrl))
             return imageUrl; // tunnel not yet available — degrade gracefully

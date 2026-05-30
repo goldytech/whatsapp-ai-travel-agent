@@ -2,10 +2,8 @@ namespace AgentForge.WebApi.Services;
 
 /// <summary>
 /// Registers the public webhook URL with WAHA on startup.
-/// Reads the tunnel URL from multiple possible Aspire service discovery env var formats:
-///   WEBHOOK_HTTPS            (Aspire DevTunnel simple format — {RESOURCE}_{SCHEME})
-///   services__webhook__https__0 (Aspire service discovery format)
-///   WEBHOOK_BASE_URL         (manual override via user-secrets or env)
+/// Resolves the public base URL with local Aspire tunnel/service-discovery values first and
+/// falls back to WEBHOOK_BASE_URL only when no live tunnel URL is available.
 /// Retries in background until the tunnel URL is available.
 /// Also exposes RegisterAsync for manual trigger via admin endpoint.
 /// </summary>
@@ -75,15 +73,5 @@ public sealed partial class WebhookRegistrationService(
         }
     }
 
-    private string? ResolveTunnelUrl()
-    {
-        var manualOverride = config["WEBHOOK_BASE_URL"];
-        if (!string.IsNullOrWhiteSpace(manualOverride))
-            return manualOverride;
-
-        // Priority order — check all known Aspire env var formats
-        return config["WEBHOOK_HTTPS"]              // Aspire DevTunnel: {RESOURCE}_{SCHEME}
-            ?? config["services:webhook:https:0"]   // Aspire service discovery format
-            ?? config["services:waha-webhook:https:0"]; // legacy key we tried initially
-    }
+    private string? ResolveTunnelUrl() => PublicWebhookUrlResolver.GetBaseUrl(config);
 }

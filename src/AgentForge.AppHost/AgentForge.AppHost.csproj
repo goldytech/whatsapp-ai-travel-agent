@@ -18,6 +18,7 @@
         <TargetFramework>net10.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <NoWarn>$(NoWarn);ASPIREINTERACTION001</NoWarn>
         <UserSecretsId>0693d2a9-ec4c-4ceb-ad38-a8a6d0b935e9</UserSecretsId>
     </PropertyGroup>
 

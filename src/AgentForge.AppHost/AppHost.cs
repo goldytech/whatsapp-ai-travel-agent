@@ -44,7 +44,7 @@ var webhookApi = builder.AddProject<AgentForge_WebApi>("webhook")
     .WaitFor(waha)
     .WaitFor(mcpServer)
     .WithLocalVerticalInputs(localParameters);
-if (!string.IsNullOrWhiteSpace(settings.ConfiguredWebhookBaseUrl))
+if (settings.IsPublishMode && !string.IsNullOrWhiteSpace(settings.ConfiguredWebhookBaseUrl))
 {
     webhookApi.WithEnvironment("WEBHOOK_BASE_URL", settings.ConfiguredWebhookBaseUrl);
 }
@@ -60,10 +60,11 @@ if (!settings.IsPublishMode)
     })
         .WithMcpServer(mcpServer);
 
-    var _ = builder.AddDevTunnel("waha-webhook")
+    var webhookTunnel = builder.AddDevTunnel("waha-webhook")
         .WithReference(webhookApi)
-        .WithAnonymousAccess()
-        .WaitFor(webhookApi);
+        .WithAnonymousAccess();
+
+    webhookApi.WithReference(webhookApi, webhookTunnel);
 }
 #endregion
 

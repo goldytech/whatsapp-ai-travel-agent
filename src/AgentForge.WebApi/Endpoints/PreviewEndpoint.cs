@@ -79,9 +79,10 @@ public static class PreviewEndpoint
 
         if (Uri.TryCreate(trimmedImageUrl, UriKind.Absolute, out var absoluteImageUri))
         {
-            if (!IsHttpUri(absoluteImageUri)
+            string imagePath;
+            if (absoluteImageUri.Scheme is not ("http" or "https")
                 || !IsSameOrigin(absoluteImageUri, publicBaseUri)
-                || !TryGetSafeImagePath(absoluteImageUri.AbsolutePath, verticalDescriptor, out var imagePath))
+                || !TryGetSafeImagePath(absoluteImageUri.AbsolutePath, verticalDescriptor, out imagePath))
                 return false;
 
             imageUri = new Uri(publicBaseUri, imagePath);
@@ -96,30 +97,7 @@ public static class PreviewEndpoint
     }
 
     private static bool TryGetPublicBaseUri(HttpRequest request, IConfiguration config, out Uri publicBaseUri)
-    {
-        publicBaseUri = default!;
-
-        var candidates = new[]
-        {
-            config["WEBHOOK_BASE_URL"],
-            config["WEBHOOK_HTTPS"],
-            config["services:webhook:https:0"],
-            $"{request.Scheme}://{request.Host}"
-        };
-
-        foreach (var candidate in candidates)
-        {
-            if (string.IsNullOrWhiteSpace(candidate)
-                || !Uri.TryCreate(candidate.TrimEnd('/') + "/", UriKind.Absolute, out var uri)
-                || !IsHttpUri(uri))
-                continue;
-
-            publicBaseUri = uri;
-            return true;
-        }
-
-        return false;
-    }
+        => PublicWebhookUrlResolver.TryGetBaseUri(request, config, out publicBaseUri);
 
     private static bool TryGetSafeImagePath(
         string value,
@@ -148,9 +126,6 @@ public static class PreviewEndpoint
         => left.Scheme.Equals(right.Scheme, StringComparison.OrdinalIgnoreCase)
             && left.Host.Equals(right.Host, StringComparison.OrdinalIgnoreCase)
             && left.Port == right.Port;
-
-    private static bool IsHttpUri(Uri uri)
-        => uri.Scheme is "http" or "https";
 
     private static string GetNormalizedAssetPathPrefix(IVerticalDescriptor verticalDescriptor)
         => "/" + verticalDescriptor.AssetPathPrefix.Trim('/') + "/";

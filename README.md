@@ -391,14 +391,26 @@ Aspire parameters are used for **promptable runtime inputs**. Graph-shaping AppH
 | `CUSTOMER_CONFIG_PATH` | Optional env var on `AgentForge.WebApi` / `AgentForge.McpHost` | Path to a customer config folder containing `customer-profile.json` and optionally `prompt.md`; when unset, the travel plugin falls back to its bundled defaults |
 | `VERTICAL_PLUGIN_PATH` | Optional env var on `AgentForge.WebApi` / `AgentForge.McpHost` | Path to an external published vertical plugin folder or DLL; when unset, the in-tree travel plugin is used |
 
-### Dashboard-prompted local inputs
+### Optional dashboard local overrides
 
-When you run `aspire start` locally, the AppHost exposes these as Aspire parameters so the dashboard can prompt for them if they are missing:
+When you run `aspire start` locally, the AppHost exposes these as Aspire parameters:
 
-- `VERTICAL_PLUGIN_PATH` — local path to an external plugin folder or DLL for `AgentForge.WebApi` and `AgentForge.McpHost`
-- `CUSTOMER_CONFIG_PATH` — local path to a customer config folder for `AgentForge.WebApi` and `AgentForge.McpHost`
+- `vertical-plugin-path` — optional local override for an external plugin folder or DLL
+- `customer-config-path` — optional local override for a customer config folder
 
-These are **runtime inputs**, so they are safe to prompt in the dashboard. In contrast, values like `VERTICAL_ID`, `VERTICAL_PLUGIN_SOURCE_PATH`, `CUSTOMER_CONFIG_SOURCE_PATH`, and `WahaTier` still shape the AppHost graph or publish output, so they remain standard AppHost configuration rather than dashboard-entered parameters.
+They default to blank, so local startup no longer blocks on unresolved parameters. Blank means:
+
+- built-in in-tree travel plugin
+- bundled travel customer config
+
+If you want to preconfigure these overrides without using the dashboard, prefer standard Aspire parameter configuration:
+
+- `Parameters__vertical_plugin_path`
+- `Parameters__customer_config_path`
+
+Legacy `VERTICAL_PLUGIN_PATH` and `CUSTOMER_CONFIG_PATH` environment variables are still accepted as compatibility fallbacks for local runs.
+
+The dashboard parameters are therefore an **optional override UX**, not a required setup step. In contrast, values like `VERTICAL_ID`, `VERTICAL_PLUGIN_SOURCE_PATH`, `CUSTOMER_CONFIG_SOURCE_PATH`, and `WahaTier` still shape the AppHost graph or publish output, so they remain standard AppHost configuration rather than dashboard-entered parameters.
 
 ### Customer config pack layout
 
@@ -614,7 +626,7 @@ This generates:
 
 - `AgentForge.WebApi` and `AgentForge.McpHost` receive `VERTICAL_ID`, `VERTICAL_PLUGIN_ROOT`, and `VERTICAL_PLUGIN_PATH` automatically in publish mode.
 - If `CUSTOMER_CONFIG_SOURCE_PATH` is set on the AppHost, both hosts also receive `CUSTOMER_CONFIG_PATH` and the mounted folder is available read-only for runtime descriptor overrides.
-- During local `aspire start`, missing `VERTICAL_PLUGIN_PATH` and `CUSTOMER_CONFIG_PATH` are surfaced as unresolved Aspire parameters so the dashboard can collect them before `webhook` and `mcpserver` start.
+- During local `aspire start`, `vertical-plugin-path` and `customer-config-path` are exposed as optional Aspire parameter overrides with friendly dashboard labels/placeholders, but they default to blank so normal startup does not require dashboard input.
 - `DevTunnel` and `MCP Inspector` are intentionally **local-only** and are not included in published Compose output.
 - The generated Compose file still expects environment variables for image names and secrets such as `WEBHOOK_IMAGE`, `MCPSERVER_IMAGE`, `AI_FOUNDRY`, `WAHAAPIKEY`, `WAHADASHBOARDPASSWORD`, and `WAHASWAGGERPASSWORD`.
 - To publish a different vertical later, publish that plugin to `artifacts/plugins/<vertical-id>/` and set `VERTICAL_ID` (and optionally `VERTICAL_PLUGIN_SOURCE_PATH` and `CUSTOMER_CONFIG_SOURCE_PATH`) before running `aspire publish`.
