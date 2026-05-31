@@ -24,6 +24,7 @@ if (settings.IsPublishMode)
     waha.PublishAsDockerComposeService((_, service) =>
     {
         service.Restart = "unless-stopped";
+        service.Ports.Add("${WAHA_DASHBOARD_HOST_PORT:-3000}:3000");
     });
 }
 
@@ -89,6 +90,11 @@ if (settings.IsPublishMode)
                 "WEBHOOK_HOST_PORT",
                 "8080",
                 "Host port that exposes the published webhook container for direct VPS access or an external tunnel.");
+            SetEnvMetadata(
+                env,
+                "WAHA_DASHBOARD_HOST_PORT",
+                "3000",
+                "Host port that exposes the published WAHA dashboard for VPS setup, QR scanning, or an external tunnel.");
         })
         .WithDashboard(dashboard => dashboard
             .WithEnvironment("Dashboard__ApplicationName", "AgentForge")

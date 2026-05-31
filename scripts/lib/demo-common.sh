@@ -224,13 +224,17 @@ parse_image_reference() {
 save_current_demo_state() {
     local vertical_id="$1"
     local compose_project="$2"
-    local hostname="$3"
+    local webhook_hostname="$3"
     local webhook_host_port="$4"
+    local waha_hostname="$5"
+    local waha_dashboard_host_port="$6"
 
     write_file_atomically "$DEMO_CURRENT_FILE" <<EOF
 VERTICAL_ID=${vertical_id}
 COMPOSE_PROJECT=${compose_project}
-DEMO_HOSTNAME=${hostname}
+DEMO_HOSTNAME=${webhook_hostname}
 WEBHOOK_HOST_PORT=${webhook_host_port}
+WAHA_DEMO_HOSTNAME=${waha_hostname}
+WAHA_DASHBOARD_HOST_PORT=${waha_dashboard_host_port}
 EOF
 }
