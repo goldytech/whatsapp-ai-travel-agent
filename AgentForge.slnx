@@ -1,0 +1,15 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/AgentForge.AppHost/AgentForge.AppHost.csproj" />
+    <Project Path="src/AgentForge.Hosting/AgentForge.Hosting.csproj" />
+    <Project Path="src/AgentForge.McpHost/AgentForge.McpHost.csproj" />
+    <Project Path="src/AgentForge.ServiceDefaults/AgentForge.ServiceDefaults.csproj" />
+    <Project Path="src/AgentForge.Verticals.Abstractions/AgentForge.Verticals.Abstractions.csproj" />
+    <Project Path="src/AgentForge.Verticals.Hosting/AgentForge.Verticals.Hosting.csproj" />
+    <Project Path="src/AgentForge.WebApi/AgentForge.WebApi.csproj" />
+  </Folder>
+  <Folder Name="/src/Verticals/">
+    <Project Path="src/Verticals/AgentForge.Verticals.Travel/AgentForge.Verticals.Travel.csproj" />
+  </Folder>
+  <Folder Name="/tests/" />
+</Solution>

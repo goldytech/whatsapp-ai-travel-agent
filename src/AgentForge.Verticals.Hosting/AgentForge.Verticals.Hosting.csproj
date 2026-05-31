@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\AgentForge.Verticals.Abstractions\AgentForge.Verticals.Abstractions.csproj" />
+    <ProjectReference Include="..\Verticals\AgentForge.Verticals.Travel\AgentForge.Verticals.Travel.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+</Project>

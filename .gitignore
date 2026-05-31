@@ -8,3 +8,6 @@ riderModule.iml
 *.user
 .env
 *.csproj.lscache
+.DS_Store
+artifacts/*
+!artifacts/.gitkeep

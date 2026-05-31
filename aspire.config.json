@@ -1,5 +1,5 @@
 {
   "appHost": {
-    "path": "Waha.AppHost/Waha.AppHost.csproj"
+    "path": "src/AgentForge.AppHost/AgentForge.AppHost.csproj"
   }
 }

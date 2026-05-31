@@ -1,0 +1,25 @@
+<Project Sdk="Aspire.AppHost.Sdk/13.3.5">
+
+    <ItemGroup>
+      <ProjectReference Include="..\AgentForge.WebApi\AgentForge.WebApi.csproj" />
+      <ProjectReference Include="..\AgentForge.McpHost\AgentForge.McpHost.csproj" />
+      <!-- IsAspireProjectResource=false: treat as a library, not an orchestrated service -->
+      <ProjectReference Include="..\AgentForge.Hosting\AgentForge.Hosting.csproj" IsAspireProjectResource="false" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Aspire.Hosting.Docker" Version="13.3.5" />
+      <PackageReference Include="Aspire.Hosting.DevTunnels" Version="13.3.5" />
+      <PackageReference Include="CommunityToolkit.Aspire.Hosting.McpInspector" Version="13.3.0" />
+    </ItemGroup>
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <NoWarn>$(NoWarn);ASPIREINTERACTION001</NoWarn>
+        <UserSecretsId>0693d2a9-ec4c-4ceb-ad38-a8a6d0b935e9</UserSecretsId>
+    </PropertyGroup>
+
+</Project>

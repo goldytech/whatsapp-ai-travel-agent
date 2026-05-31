@@ -1,4 +1,4 @@
-# Copilot Instructions — Royal Journeys WhatsApp AI Travel Agent
+# Copilot Instructions — AgentForge Multi-Vertical Platform
 
 ## Build & Run
 
@@ -6,35 +6,41 @@
 # Build entire solution (zero warnings expected)
 dotnet build
 
-# Start all services (Aspire orchestrates WAHA container, McpServer, WebApi, DevTunnel)
+# Start all services (Aspire orchestrates WAHA container, McpHost, WebApi, DevTunnel)
 aspire start
 
+# Generate Docker Compose deployment artifacts
+aspire publish --apphost src/AgentForge.AppHost/AgentForge.AppHost.csproj -o artifacts/aspire-output
+
 # Run a single project
-dotnet run --project Waha.McpServer
-dotnet run --project Waha.WebApi
+dotnet run --project src/AgentForge.McpHost
+dotnet run --project src/AgentForge.WebApi
 ```
 
-There are no automated test projects in this repository. Verification is done by running the app and exercising the webhook manually (see `Waha.WebApi/Waha.WebApi.http`).
+There are no automated test projects in this repository. Verification is done by running the app and exercising the webhook manually (see `src/AgentForge.WebApi/AgentForge.WebApi.http`).
 
 ## Architecture Overview
 
-This is a **.NET Aspire** solution with four projects:
+This is a **.NET Aspire** solution with eight projects. The repository should now be treated as **AgentForge**, a reusable WhatsApp AI platform with a travel reference vertical currently shipped in-tree.
 
 | Project | Role |
 |---|---|
-| `Waha.AppHost` | Aspire orchestrator — wires up all services, secrets, and the DevTunnel |
-| `Waha.Hosting` | Custom Aspire integration (`AddWaha`) that encapsulates the WAHA Docker container |
-| `Waha.McpServer` | MCP tool server — 18 AI tools and 3 resources, exposed over `StreamableHttp` at `/mcp` |
-| `Waha.WebApi` | AI gateway — receives WhatsApp webhooks, runs the Aria agent, sends replies |
-| `Waha.ServiceDefaults` | Shared defaults — OpenTelemetry, health checks, HTTP resilience, service discovery |
+| `AgentForge.AppHost` | Aspire orchestrator — wires up all services, secrets, and the DevTunnel |
+| `AgentForge.Hosting` | Custom Aspire integration (`AddWaha`) that encapsulates the WAHA Docker container |
+| `AgentForge.McpHost` | Generic MCP host — loads tools/resources from the active vertical plugin and exposes them over `StreamableHttp` at `/mcp` |
+| `AgentForge.WebApi` | Generic AI gateway — receives WhatsApp webhooks, runs the active vertical agent, sends replies |
+| `AgentForge.ServiceDefaults` | Shared defaults — OpenTelemetry, health checks, HTTP resilience, service discovery |
+| `AgentForge.Verticals.Abstractions` | Shared contracts for vertical metadata, scheduled actions, and host/plugin messaging |
+| `AgentForge.Verticals.Hosting` | Shared loader layer that resolves the active in-process vertical for both hosts |
+| `AgentForge.Verticals.Travel` | Current in-tree travel vertical implementation: agent metadata, prompt, tools, resources, data, and scheduled action behavior |
 
 ### Message flow
 
 ```
 WhatsApp → WAHA container → DevTunnel → /webhook (WebApi)
     → WhatsAppMessageQueue (Channel<T>)
-    → AgentChatService → TravelAgentFactory (Aria / ChatClientAgent)
-        → Waha.McpServer (MCP tools over StreamableHttp)
+    → AgentChatService → VerticalAgentFactory (active vertical agent / ChatClientAgent)
+        → AgentForge.McpHost (tools/resources from active vertical plugin over StreamableHttp)
         → Azure AI Foundry (GPT-5.4 mini)
     → WahaApiClient → WAHA → WhatsApp
 ```
@@ -43,7 +49,8 @@ WhatsApp → WAHA container → DevTunnel → /webhook (WebApi)
 - The `WhatsAppMessageQueue` is a bounded `Channel<T>` (capacity 200, `DropOldest`). The webhook returns `200 OK` immediately and processing happens asynchronously in a `BackgroundService`.
 - Conversation history is **client-managed** (`AgentSessionStore`, keyed by phone number). The Azure AI Foundry chat completions API does not support server-managed history — do not use the `conversationId` overload of `CreateSessionAsync`.
 - **Retries are intentionally disabled** on all HTTP clients (via `ServiceDefaults`). Retrying `WahaApiClient.SendTextAsync` would deliver the same WhatsApp message multiple times.
-- `TravelAgentFactory` uses double-checked locking (`SemaphoreSlim`) to lazily initialise the `ChatClientAgent` (Aria) exactly once — MCP tool discovery is async and cannot happen in a constructor.
+- `VerticalAgentFactory` uses double-checked locking (`SemaphoreSlim`) to lazily initialise the `ChatClientAgent` for the active vertical exactly once — MCP tool discovery is async and cannot happen in a constructor.
+- Runtime vertical selection is controlled by `AgentForge.Verticals.Hosting`: `VERTICAL_PLUGIN_PATH`, or `VERTICAL_PLUGIN_ROOT` + `VERTICAL_ID`, or fallback to the in-tree travel plugin.
 
 ## Key Conventions
 
@@ -62,10 +69,16 @@ WhatsApp → WAHA container → DevTunnel → /webhook (WebApi)
 - Always registered via `IHttpClientFactory` — never `new HttpClient()`.
 - Service-discovery names match Aspire resource names: `"http://waha"`, `"http://mcpserver"`.
 
-### MCP tool authoring (in `Waha.McpServer/Tools/`)
+### Vertical plugin authoring
+- New industries should be implemented as separate vertical libraries under `src/Verticals/AgentForge.Verticals.<Vertical>/`.
+- The plugin contract lives in `src/AgentForge.Verticals.Abstractions/VerticalContracts.cs`.
+- A vertical should implement `IVerticalPlugin`, expose an `IVerticalMcpRegistrar`, configure any plugin-specific configuration sources/options, create the runtime `IVerticalDescriptor`, and register any WebApi-specific services it needs.
+- The current travel plugin entry point is `src/Verticals/AgentForge.Verticals.Travel/TravelVerticalPlugin.cs`.
+
+### MCP tool authoring (current travel vertical example: `src/Verticals/AgentForge.Verticals.Travel/Tools/`)
 - Decorate the class with `[McpServerToolType]` and each method with `[McpServerTool]`.
 - All parameters and descriptions use `[Description("...")]` attributes.
-- Tools are auto-registered via `WithToolsFromAssembly` — no registration needed in `Waha.WebApi`.
+- Tools are auto-registered via `WithToolsFromAssembly` — no registration needed in `AgentForge.WebApi`.
 - Return plain strings (WhatsApp-friendly, use `*bold*` and emoji). Use raw string literals (`"""..."""`) for multi-line responses.
 - Read-only tools get `ReadOnly = true` on `[McpServerTool]`.
 
@@ -74,17 +87,30 @@ WhatsApp → WAHA container → DevTunnel → /webhook (WebApi)
 - Register background services as singletons and add them with `AddHostedService(sp => sp.GetRequiredService<T>())` so the same instance is both injectable and hosted.
 
 ### Secrets & configuration
-- All secrets live in **`Waha.AppHost` user secrets** (`dotnet user-secrets` in that project).
+- All secrets live in **`AgentForge.AppHost` user secrets** (`dotnet user-secrets` in that project).
 - The `ai-foundry` connection string format: `Endpoint=https://...;Key=...` (optional `DeploymentId=...`).
 - `WEBHOOK_BASE_URL` env var overrides DevTunnel when deploying outside local dev.
+- `wahaWebhookSecret` is a required Aspire secret parameter; `AgentForge.WebApi` uses it both to configure WAHA webhook HMAC signing and to verify incoming `X-Webhook-Hmac` requests against the raw request body.
+- `VERTICAL_PLUGIN_PATH` can point `AgentForge.WebApi` and `AgentForge.McpHost` at an external published plugin folder or DLL; when unset, `AgentForge.Verticals.Hosting` falls back to the in-tree travel plugin.
+- During local `aspire start`, `vertical-plugin-path` and `customer-config-path` are exposed as optional Aspire parameter overrides with blank defaults and friendly dashboard input metadata. The canonical Aspire keys are `Parameters:vertical-plugin-path` and `Parameters:customer-config-path`; for env-style configuration, the AppHost also accepts the shell-friendly aliases `Parameters__vertical_plugin_path` and `Parameters__customer_config_path`. Legacy `VERTICAL_PLUGIN_PATH` / `CUSTOMER_CONFIG_PATH` env vars continue to work as compatibility fallbacks.
+- The travel vertical's bundled runtime descriptor defaults now live in `src/Verticals/AgentForge.Verticals.Travel/Configuration/customer-profile.json` and `prompt.md`, bound via the .NET Options pattern.
+- `CUSTOMER_CONFIG_PATH` points `AgentForge.WebApi` and `AgentForge.McpHost` at an optional external customer config folder containing `customer-profile.json` and an optional `prompt.md`; when unset, the bundled travel defaults are used.
+- Keep graph-shaping values such as `VERTICAL_ID`, publish bind-mount source paths, and `WahaTier` as ordinary AppHost configuration rather than dashboard-entered parameters.
+- For Compose publishing, `AgentForge.AppHost` also supports `VERTICAL_ID`, `VERTICAL_PLUGIN_ROOT`, `VERTICAL_PLUGIN_SOURCE_PATH`, and `CUSTOMER_CONFIG_SOURCE_PATH`; publish mode bind-mounts the selected plugin and optional customer config into both hosts with `PublishAsDockerComposeService`.
+- Do not exclude the custom `WahaResource` from the manifest — `aspire publish` needs it to generate the `waha` Compose service and resolve `webhook`'s service reference correctly.
 
 ### Data layer
-- All data is **in-memory** — JSON seed files under `Waha.McpServer/Data/` are loaded once by the `*Service` singletons at startup. There is no database.
-- To replace the tour catalog, edit `tours.json`, `destinations.json`, `policies.json`.
+- All data is **in-memory** today — the current travel plugin loads JSON seed files under `src/Verticals/AgentForge.Verticals.Travel/Data/` once at startup. There is no database yet.
+- Future verticals may ship their own `Data/` folders and deployment validation rules inside their plugin assemblies.
 
 ### Agent persona
-- Aria's system prompt is the `SystemPrompts.Aria` constant in `Waha.WebApi/Constants/SystemPrompts.cs`.
-- Scheduling logic (departure reminders, post-trip feedback) lives in `Waha.WebApi/Scheduling/SchedulerService.cs` and delegates to `TravelBotHandler` / `FeedbackHandler`.
+- The active agent's system prompt, preview defaults, and branding come from the selected vertical descriptor.
+- The current travel example composes its runtime descriptor from `src/Verticals/AgentForge.Verticals.Travel/Configuration/customer-profile.json`, `prompt.md`, and `ResolvedTravelVerticalDescriptor.cs`.
+- Scheduling logic lives in `src/AgentForge.WebApi/Scheduling/SchedulerService.cs` and dispatches through `IScheduledActionHandler`, currently implemented by `TravelScheduledActionHandler` in `src/Verticals/AgentForge.Verticals.Travel/`.
+
+### Documentation positioning
+- Treat the repository as **platform-first** in documentation and future codegen/review work.
+- Travel is the current reference vertical and first commercial wedge, not the permanent identity of the codebase.
 
 ### Branch naming (contributing)
 ```
