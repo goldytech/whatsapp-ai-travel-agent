@@ -28,9 +28,9 @@ public static class Extensions
         builder.Services.ConfigureHttpClientDefaults(http =>
         {
             // Resilience pipeline tuned for this app's HTTP clients:
-            //   - WahaApiClient: sendText waits for WhatsApp delivery (can take 1-2 min)
+            //   - OpenWaApiClient: provider sends can take 1-2 min depending on WhatsApp delivery
             //   - mcpserver: MCP tool calls over StreamableHttp (multi-turn AI conversations)
-            // Retries are intentionally DISABLED globally — retrying WAHA sendText would
+            // Retries are intentionally DISABLED globally — retrying an outbound provider send would
             // send the same WhatsApp message multiple times to the customer.
             http.AddStandardResilienceHandler(options =>
             {
@@ -39,7 +39,7 @@ public static class Extensions
                 // SamplingDuration must be strictly > 2× AttemptTimeout to satisfy Polly's constraint
                 options.CircuitBreaker.SamplingDuration = TimeSpan.FromMinutes(7);
                 // Disable retries via ShouldHandle — MaxRetryAttempts must be >= 1 (Polly constraint).
-                // Retrying WAHA sendText would send the same WhatsApp message multiple times.
+                // Retrying a provider send would send the same WhatsApp message multiple times.
                 options.Retry.ShouldHandle = static _ => ValueTask.FromResult(false);
             });
 

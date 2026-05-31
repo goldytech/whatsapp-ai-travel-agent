@@ -10,12 +10,12 @@ namespace AgentForge.WebApi.Services;
 ///   2. Deserialize back into an <see cref="AgentSession"/> (carries full conversation history)
 ///   3. Run Aria against the incoming message
 ///   4. Serialize the updated session back to the store
-///   5. Dispatch the AI reply via WhatsApp — images first, then text — using <see cref="IWahaSendService"/>
+///   5. Dispatch the AI reply via WhatsApp — images first, then text — using <see cref="IMessageSender"/>
 /// </summary>
 public sealed partial class AgentChatService(
     IAgentFactory agentFactory,
     AgentSessionStore sessionStore,
-    IWahaSendService sendService,
+    IMessageSender sendService,
     IVerticalDescriptor verticalDescriptor,
     IConfiguration config,
     ILogger<AgentChatService> logger)
@@ -102,10 +102,9 @@ public sealed partial class AgentChatService(
     /// <summary>
     /// Parses <c>{{image:URL}}</c> or <c>{{image:URL|caption}}</c> markers embedded by Aria.
     /// Relative URLs (e.g. <c>images/tours/goa/1.jpg</c>) are expanded to absolute using
-    /// <c>WEBHOOK_BASE_URL</c> so WAHA can fetch them over the public DevTunnel.
+    /// <c>WEBHOOK_BASE_URL</c> so OpenWA can fetch them over the public endpoint.
     /// Images are sent sequentially with a 750 ms gap to preserve display order and avoid
-    /// WhatsApp anti-spam detection (Baileys has no internal send queue; concurrent sends
-    /// race on CDN upload and arrive out of order).
+    /// out-of-order media delivery when the provider uploads assets concurrently.
     /// Image failures are logged at Warning and never block the text reply.
     /// </summary>
     private async Task SendReplyAsync(string phoneNumber, string rawReply, CancellationToken ct)

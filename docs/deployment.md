@@ -39,7 +39,7 @@ This generates:
 - If `CUSTOMER_CONFIG_SOURCE_PATH` is set on the AppHost, both hosts also receive `CUSTOMER_CONFIG_PATH` and the mounted folder is available read-only for runtime descriptor overrides.
 - During local `aspire start`, `vertical-plugin-path` and `customer-config-path` are exposed as optional Aspire parameter overrides with friendly dashboard labels/placeholders, but they default to blank so normal startup does not require dashboard input.
 - `DevTunnel` and `MCP Inspector` are intentionally **local-only** and are not included in published Compose output.
-- Published Compose exposes the `webhook` service on `WEBHOOK_HOST_PORT` and the WAHA dashboard on `WAHA_DASHBOARD_HOST_PORT` so you can front them with a VPS public IP, reverse proxy, or an external tunnel such as Microsoft Dev Tunnels, ngrok, or Cloudflare Tunnel.
+- Published Compose exposes the `webhook` service on `WEBHOOK_HOST_PORT` and the OpenWA dashboard on `OPENWA_DASHBOARD_HOST_PORT` so you can front them with a VPS public IP, reverse proxy, or an external tunnel such as Microsoft Dev Tunnels, ngrok, or Cloudflare Tunnel.
 - To publish a different vertical later, publish that plugin to `artifacts/plugins/<vertical-id>/` and set `VERTICAL_ID` (and optionally `VERTICAL_PLUGIN_SOURCE_PATH` and `CUSTOMER_CONFIG_SOURCE_PATH`) before running `aspire publish`.
 
 ## Production deployment checklist
@@ -62,17 +62,17 @@ This generates:
    ```bash
    export AI_FOUNDRY='Endpoint=https://...;Key=...'
    export COMPOSEDASHBOARDBROWSERTOKEN='set-a-strong-dashboard-token'
-   export WAHAAPIKEY='...'
-   export WAHADASHBOARDPASSWORD='...'
-   export WAHASWAGGERPASSWORD='...'
-   export WAHAWEBHOOKSECRET='...'
+   export OPENWAAPIKEY='...'
+   export OPENWAENCRYPTIONKEY='generate-a-long-random-secret'
+   export OPENWAWEBHOOKSECRET='generate-a-second-long-random-secret'
+   export OPENWAPOSTGRESPASSWORD='set-a-strong-database-password'
    export WEBHOOK_BASE_URL='https://your-public-host-or-tunnel'
    export MCPSERVER_IMAGE='agentforge-mcpserver-local:deploytest'
    export WEBHOOK_IMAGE='agentforge-webhook-local:deploytest'
    export MCPSERVER_PORT='8081'
    export WEBHOOK_PORT='8080'
    export WEBHOOK_HOST_PORT='8080'
-   export WAHA_DASHBOARD_HOST_PORT='3000'
+   export OPENWA_DASHBOARD_HOST_PORT='2886'
    ```
 
    The published Aspire dashboard is configured with `Dashboard__ApplicationName=AgentForge` and
@@ -80,7 +80,7 @@ This generates:
    `docker compose up` so the dashboard uses your chosen login token instead of a runtime-generated one.
    Published deployments also expect `WEBHOOK_BASE_URL` because Aspire dev tunnels are not part of
    `aspire publish`; `WEBHOOK_HOST_PORT` is the host-side port that exposes the webhook container and
-   `WAHA_DASHBOARD_HOST_PORT` exposes the WAHA dashboard at `http://<host>:<port>/dashboard`.
+   `OPENWA_DASHBOARD_HOST_PORT` exposes the OpenWA dashboard at `http://<host>:<port>/`.
 
 4. Start the published stack:
 
@@ -88,44 +88,44 @@ This generates:
    docker compose -p agentforge-prodtest -f artifacts/aspire-output/docker-compose.yaml up -d
    ```
 
-5. Restore or authenticate WAHA's `default` session before testing outbound replies. A fresh `waha-sessions` volume will not send messages until the session is started.
+5. Restore or authenticate OpenWA's `default` session before testing outbound replies. A fresh `openwa-data` volume will not send messages until the session is authenticated.
 
    If you want to scan the QR code through the published dashboard instead of restoring an existing
-   session volume, open `http://<host>:${WAHA_DASHBOARD_HOST_PORT}/dashboard` (or your reverse-proxied
-   HTTPS hostname), sign in as `admin` with `WAHADASHBOARDPASSWORD`, then configure the `default`
-   session there.
+   session volume, open `http://<host>:${OPENWA_DASHBOARD_HOST_PORT}/` (or your reverse-proxied
+   HTTPS hostname). If the UI prompts for credentials, use the configured `OPENWAAPIKEY`, then
+   authenticate or inspect the `default` session there.
 
-   If you restored an existing authenticated WAHA volume, start the session explicitly:
+   If you restored an existing authenticated OpenWA volume, verify the session explicitly:
 
    ```bash
-   docker exec agentforge-prodtest-waha-1 node -e "fetch('http://127.0.0.1:3000/api/sessions/default/start',{method:'POST',headers:{'X-Api-Key': process.argv[1],'Accept':'application/json'}}).then(async r=>{console.log(r.status);console.log(await r.text());})" "$WAHAAPIKEY"
+   docker exec agentforge-prodtest-openwa-1 node -e "fetch('http://127.0.0.1:2785/api/sessions/default',{headers:{'X-Api-Key': process.argv[1],'X-API-KEY': process.argv[1],'Accept':'application/json'}}).then(async r=>{console.log(r.status);console.log(await r.text());})" "$OPENWAAPIKEY"
    ```
 
-   Verify WAHA sees the session:
+   If it is disconnected or stopped, restart it:
 
    ```bash
-   docker exec agentforge-prodtest-waha-1 node -e "fetch('http://127.0.0.1:3000/api/sessions',{headers:{'X-Api-Key': process.argv[1]}}).then(r=>r.text()).then(console.log)" "$WAHAAPIKEY"
+   docker exec agentforge-prodtest-openwa-1 node -e "fetch('http://127.0.0.1:2785/api/sessions/default/restart',{method:'POST',headers:{'X-Api-Key': process.argv[1],'X-API-KEY': process.argv[1],'Accept':'application/json'}}).then(async r=>{console.log(r.status);console.log(await r.text());})" "$OPENWAAPIKEY"
    ```
 
 6. Validate the end-to-end message path by sending a signed webhook event into the deployed `webhook` service from inside the Compose network:
 
    ```bash
-   docker exec agentforge-prodtest-waha-1 node -e "const crypto=require('crypto'); const body=JSON.stringify({event:'message',session:'default',payload:{id:'wamid.test.'+Date.now(),timestamp:Math.floor(Date.now()/1000),from:'919825318335@c.us',fromMe:false,to:'916355118335@c.us',body:'Hi what is your name',type:'chat',hasMedia:false,_data:{}}}); const sig=crypto.createHmac('sha512', process.argv[1]).update(body).digest('hex'); fetch('http://webhook:8080/webhook',{method:'POST',headers:{'Content-Type':'application/json','X-Webhook-Hmac':sig,'X-Webhook-Hmac-Algorithm':'sha512'},body}).then(async r=>{console.log(r.status);console.log(await r.text());}).catch(err=>{console.error(err);process.exit(1);});" "$WAHAWEBHOOKSECRET"
+   docker exec agentforge-prodtest-openwa-1 node -e "const crypto=require('crypto'); const body=JSON.stringify({event:'message.received',sessionId:'default',deliveryId:'test-'+Date.now(),data:{id:'msg-'+Date.now(),chatId:'919825318335@c.us',from:'919825318335@c.us',fromMe:false,body:'Hi what is your name',type:'chat',hasMedia:false}}); const sig='sha256='+crypto.createHmac('sha256', process.argv[1]).update(body).digest('hex'); fetch('http://webhook:8080/webhook',{method:'POST',headers:{'Content-Type':'application/json','X-OpenWA-Signature':sig},body}).then(async r=>{console.log(r.status);console.log(await r.text());}).catch(err=>{console.error(err);process.exit(1);});" "$OPENWAWEBHOOKSECRET"
    ```
 
 7. Confirm the deployed services processed the message and returned a WhatsApp reply:
 
    ```bash
-   docker compose -p agentforge-prodtest -f artifacts/aspire-output/docker-compose.yaml logs --tail=120 webhook mcpserver waha
+   docker compose -p agentforge-prodtest -f artifacts/aspire-output/docker-compose.yaml logs --tail=120 webhook mcpserver openwa
    ```
 
    A successful run shows:
 
    - `AgentForge.WebApi` calling Azure AI Foundry successfully
-   - `AgentForge.WebApi` sending `POST http://waha:3000/api/sendText`
-   - WAHA returning `201` for `/api/sendText`
+   - `AgentForge.WebApi` sending `POST http://openwa:2785/api/sessions/default/messages/send-text`
+   - OpenWA accepting the send request without duplicate retries
 
-If you need WhatsApp media previews or automatic webhook registration outside local Aspire, provide a public `WEBHOOK_BASE_URL` for the deployed `webhook` service.
+If you need OpenWA media delivery or automatic webhook registration outside local Aspire, provide a public `WEBHOOK_BASE_URL` for the deployed `webhook` service.
 
 ## Local prospect demo with a manual public tunnel
 
@@ -153,7 +153,7 @@ published Docker Compose bundle. That is the mode where Aspire provisions and wi
 
 If `qloop.tech` is already active on your Cloudflare account, the most repeatable no-VPS demo flow is
 to use a **named Cloudflare Tunnel** and deploy one vertical at a time behind two per-vertical hostnames
-such as `travel-demo.qloop.tech` for the webhook and `travel-waha-demo.qloop.tech` for the WAHA dashboard.
+such as `travel-demo.qloop.tech` for the webhook and `travel-openwa-demo.qloop.tech` for the OpenWA dashboard.
 
 **Prerequisites**
 
@@ -185,16 +185,16 @@ mkdir -p ~/.config/agentforge-demo
 cat > ~/.config/agentforge-demo/runtime.env <<'EOF'
 AI_FOUNDRY='Endpoint=https://...;Key=...'
 COMPOSEDASHBOARDBROWSERTOKEN='set-a-strong-dashboard-token'
-WAHAAPIKEY='...'
-WAHADASHBOARDPASSWORD='...'
-WAHASWAGGERPASSWORD='...'
-WAHAWEBHOOKSECRET='...'
+OPENWAAPIKEY='...'
+OPENWAENCRYPTIONKEY='generate-a-long-random-secret'
+OPENWAWEBHOOKSECRET='generate-a-second-long-random-secret'
+OPENWAPOSTGRESPASSWORD='set-a-strong-database-password'
 MCPSERVER_IMAGE='agentforge-mcpserver-local:deploytest'
 WEBHOOK_IMAGE='agentforge-webhook-local:deploytest'
 MCPSERVER_PORT='8081'
 WEBHOOK_PORT='8080'
 WEBHOOK_HOST_PORT='8080'
-WAHA_DASHBOARD_HOST_PORT='3000'
+OPENWA_DASHBOARD_HOST_PORT='2886'
 EOF
 ```
 
@@ -211,17 +211,14 @@ The deploy script:
 - runs `aspire publish`
 - starts the published Compose stack as `agentforge-<vertical-id>-demo`
 - assigns `https://<vertical-id>-demo.qloop.tech` to the webhook and
-  `https://<vertical-id>-waha-demo.qloop.tech/dashboard` to WAHA
+  `https://<vertical-id>-openwa-demo.qloop.tech/` to OpenWA
 - starts a managed local `cloudflared` process and stores its PID/log under
   `~/.config/agentforge-demo/`
 
-The public WAHA dashboard remains protected by WAHA's own dashboard login:
-
-- username: `admin`
-- password: `WAHADASHBOARDPASSWORD`
+Use the configured `OPENWAAPIKEY` in the dashboard UI if it prompts for API access.
 
 By default this workflow is optimized for **one active local demo at a time** because the tunnel config
-routes the current demo's webhook and WAHA dashboard hostnames to the current host-published ports.
+routes the current demo's webhook and OpenWA dashboard hostnames to the current host-published ports.
 
 **Stop the current demo**
 

@@ -1,7 +1,7 @@
 namespace AgentForge.WebApi.Services;
 
 /// <summary>
-/// Registers the public webhook URL with WAHA on startup.
+/// Registers the public webhook URL with OpenWA on startup.
 /// Resolves the public base URL with local Aspire tunnel/service-discovery values first and
 /// falls back to WEBHOOK_BASE_URL only when no live tunnel URL is available.
 /// Published Docker Compose deployments can opt into configured-only mode, where WEBHOOK_BASE_URL
@@ -9,7 +9,7 @@ namespace AgentForge.WebApi.Services;
 /// Also exposes RegisterAsync for manual trigger via admin endpoint.
 /// </summary>
 public sealed partial class WebhookRegistrationService(
-    WahaApiClient wahaClient,
+    OpenWaApiClient openWaClient,
     IConfiguration config,
     ILogger<WebhookRegistrationService> logger) : BackgroundService
 {
@@ -20,7 +20,7 @@ public sealed partial class WebhookRegistrationService(
 
     protected override async Task ExecuteAsync(CancellationToken ct)
     {
-        // Give WAHA and the tunnel a moment to finish initialising
+        // Give OpenWA and the tunnel a moment to finish initialising
         await Task.Delay(TimeSpan.FromSeconds(5), ct).ConfigureAwait(false);
 
         if (UsesConfiguredPublicUrlOnly())
@@ -56,19 +56,19 @@ public sealed partial class WebhookRegistrationService(
     public async Task RegisterAsync(string baseUrl, CancellationToken ct = default)
     {
         var webhookUrl = $"{baseUrl.TrimEnd('/')}/webhook";
-        LogRegisteringWahaWebhookAtWebhookurl(webhookUrl);
+        LogRegisteringOpenWaWebhookAtWebhookurl(webhookUrl);
 
         for (var attempt = 1; attempt <= 5; attempt++)
         {
             try
             {
-                await wahaClient.ConfigureWebhookAsync(webhookUrl, ct).ConfigureAwait(false);
+                await openWaClient.ConfigureWebhookAsync(webhookUrl, ct).ConfigureAwait(false);
                 _registeredUrl = webhookUrl;
-                LogWahaWebhookRegisteredSuccessfullyAtWebhookurl(webhookUrl);
+                LogOpenWaWebhookRegisteredSuccessfullyAtWebhookurl(webhookUrl);
 
-                // Ensure the WAHA session is running — it may be STOPPED after a container
+                // Ensure the OpenWA session is running — it may be STOPPED after a container
                 // restart (persistent container keeps config but not session state).
-                await wahaClient.EnsureSessionWorkingAsync(ct).ConfigureAwait(false);
+                await openWaClient.EnsureDefaultSessionAsync(ct).ConfigureAwait(false);
                 return;
             }
             catch (Exception ex) when (attempt < 5 && !ct.IsCancellationRequested)

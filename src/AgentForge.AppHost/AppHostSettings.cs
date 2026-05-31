@@ -10,8 +10,7 @@ internal sealed record AppHostSettings(
     string VerticalPluginMountPath,
     string? CustomerConfigSourcePath,
     string CustomerConfigPath,
-    string? ConfiguredWebhookBaseUrl,
-    WahaTier WahaTier)
+    string? ConfiguredWebhookBaseUrl)
 {
     public bool HasCustomerConfigPath => !string.IsNullOrWhiteSpace(CustomerConfigPath);
 
@@ -30,7 +29,6 @@ internal sealed record AppHostSettings(
             ? configuredCustomerConfigPath
             : isPublishMode && !string.IsNullOrWhiteSpace(customerConfigSourcePath) ? "/app/customer-config" : string.Empty;
         var configuredWebhookBaseUrl = configuration["WEBHOOK_BASE_URL"];
-        var wahaTier = configuration["WahaTier"] is "Plus" ? WahaTier.Plus : WahaTier.Core;
 
         return new AppHostSettings(
             isPublishMode,
@@ -40,7 +38,6 @@ internal sealed record AppHostSettings(
             verticalPluginMountPath,
             customerConfigSourcePath,
             customerConfigPath,
-            configuredWebhookBaseUrl,
-            wahaTier);
+            configuredWebhookBaseUrl);
     }
 }

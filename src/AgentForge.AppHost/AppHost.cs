@@ -7,28 +7,42 @@ var settings = AppHostSettings.Load(builder.Configuration, builder.ExecutionCont
 var localParameters = AppHostLocalParameters.Create(builder, settings.IsPublishMode);
 
 #region Secrets
-var wahaApiKey = builder.AddParameter("wahaApiKey", secret: true);
-var wahaDashboardPassword = builder.AddParameter("wahaDashboardPassword", secret: true);
-var wahaSwaggerPassword = builder.AddParameter("wahaSwaggerPassword", secret: true);
-var wahaWebhookSecret = builder.AddParameter("wahaWebhookSecret", secret: true);
+var openWaApiKey = builder.AddParameter("openWaApiKey", secret: true);
+var openWaEncryptionKey = builder.AddParameter("openWaEncryptionKey", secret: true);
+var openWaWebhookSecret = builder.AddParameter("openWaWebhookSecret", secret: true);
+var openWaPostgresPassword = builder.AddParameter("openWaPostgresPassword", secret: true);
 #endregion
 
 #region Core resources
-var waha = builder.AddWaha("waha", wahaApiKey, wahaDashboardPassword, wahaSwaggerPassword,
-        engine: WahaEngine.NOWEB,
-        tier: settings.WahaTier)
+var openWaRedis = builder.AddRedis("openwa-redis")
+    .WithDataVolume();
+var openWaPostgres = builder.AddPostgres("openwa-postgres", password: openWaPostgresPassword)
+    .WithDataVolume();
+var openWaDatabase = openWaPostgres.AddDatabase("openwa-db", "openwa");
+
+var openWa = builder.AddOpenWa("openwa", openWaApiKey, openWaEncryptionKey)
+    .WithPostgres(openWaDatabase)
+    .WithRedis(openWaRedis)
     .WithDataVolume()
-    .WithPersistentLifetime();
+    .WithPersistentLifetime()
+    .WaitFor(openWaPostgres)
+    .WaitFor(openWaRedis);
+var openWaDashboard = builder.AddOpenWaDashboard("openwa-dashboard", openWa)
+    .WaitFor(openWa);
 if (settings.IsPublishMode)
 {
-    waha.PublishAsDockerComposeService((_, service) =>
+    openWa.PublishAsDockerComposeService((_, service) =>
     {
         service.Restart = "unless-stopped";
-        service.Ports.Add("${WAHA_DASHBOARD_HOST_PORT:-3000}:3000");
+    });
+    openWaDashboard.PublishAsDockerComposeService((_, service) =>
+    {
+        service.Restart = "unless-stopped";
+        service.Ports.Add("${OPENWA_DASHBOARD_HOST_PORT:-2886}:80");
     });
 }
 
-var wahaEndpoint = waha.Resource.PrimaryEndpoint;
+var openWaEndpoint = openWa.Resource.PrimaryEndpoint;
 
 var mcpServer = builder.AddProject<AgentForge_McpHost>("mcpserver")
     .WithLocalVerticalInputs(localParameters)
@@ -37,13 +51,12 @@ var mcpServer = builder.AddProject<AgentForge_McpHost>("mcpserver")
 var aiFoundry = builder.AddConnectionString("ai-foundry");
 
 var webhookApi = builder.AddProject<AgentForge_WebApi>("webhook")
-    .WithReference(wahaEndpoint)
+    .WithReference(openWaEndpoint)
     .WithReference(mcpServer)
     .WithReference(aiFoundry)
-    .WithEnvironment("WAHA_API_KEY", wahaApiKey)
-    .WithEnvironment("WAHA_WEBHOOK_SECRET", wahaWebhookSecret)
-    .WithEnvironment("WAHA_TIER", settings.WahaTier.ToString())
-    .WaitFor(waha)
+    .WithEnvironment("OPENWA_API_KEY", openWaApiKey)
+    .WithEnvironment("OPENWA_WEBHOOK_SECRET", openWaWebhookSecret)
+    .WaitFor(openWa)
     .WaitFor(mcpServer)
     .WithLocalVerticalInputs(localParameters);
 webhookApi.WithPublishVerticalRuntime(settings, "webhook");
@@ -58,7 +71,7 @@ if (!settings.IsPublishMode)
     })
         .WithMcpServer(mcpServer);
 
-    var webhookTunnel = builder.AddDevTunnel("waha-webhook")
+    var webhookTunnel = builder.AddDevTunnel("openwa-webhook")
         .WithReference(webhookApi)
         .WithAnonymousAccess();
 
@@ -83,7 +96,7 @@ if (settings.IsPublishMode)
                 env,
                 "WEBHOOK_BASE_URL",
                 settings.ConfiguredWebhookBaseUrl,
-                "Public base URL that WAHA should call for webhook delivery in published deployments. " +
+                "Public base URL that OpenWA should call for webhook delivery in published deployments. " +
                 "For local demos, set this to your external tunnel URL before starting Docker Compose.");
             SetEnvMetadata(
                 env,
@@ -92,9 +105,9 @@ if (settings.IsPublishMode)
                 "Host port that exposes the published webhook container for direct VPS access or an external tunnel.");
             SetEnvMetadata(
                 env,
-                "WAHA_DASHBOARD_HOST_PORT",
-                "3000",
-                "Host port that exposes the published WAHA dashboard for VPS setup, QR scanning, or an external tunnel.");
+                "OPENWA_DASHBOARD_HOST_PORT",
+                "2886",
+                "Host port that exposes the published OpenWA dashboard for VPS setup, QR scanning, or an external tunnel.");
         })
         .WithDashboard(dashboard => dashboard
             .WithEnvironment("Dashboard__ApplicationName", "AgentForge")

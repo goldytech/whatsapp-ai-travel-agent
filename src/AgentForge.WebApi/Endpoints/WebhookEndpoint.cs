@@ -1,4 +1,6 @@
 using AgentForge.WebApi.Queue;
+using AgentForge.WebApi.Models;
+using AgentForge.WebApi.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AgentForge.WebApi.Endpoints;
@@ -12,7 +14,7 @@ public static class WebhookEndpoint
         app.MapPost("/webhook", HandleWebhookAsync)
            .AllowAnonymous()
            .WithMetadata(new RequestSizeLimitAttribute(MaxWebhookBodyBytes))
-           .WithName("ReceiveWahaWebhook");
+           .WithName("ReceiveOpenWaWebhook");
 
         if (app.ServiceProvider.GetRequiredService<IHostEnvironment>().IsDevelopment())
         {
@@ -21,7 +23,7 @@ public static class WebhookEndpoint
            // Usage: POST /admin/register-webhook?url=https://xxx.devtunnels.ms
            app.MapPost("/admin/register-webhook", RegisterWebhookAsync)
               .AllowAnonymous()
-              .WithName("RegisterWahaWebhook");
+              .WithName("RegisterOpenWaWebhook");
         }
 
         return app;
@@ -29,7 +31,8 @@ public static class WebhookEndpoint
 
     private static async Task<IResult> HandleWebhookAsync(
         HttpRequest request,
-        WahaWebhookSignatureValidator signatureValidator,
+        OpenWaWebhookSignatureValidator signatureValidator,
+        OpenWaWebhookIdempotencyStore idempotencyStore,
         WhatsAppMessageQueue messageQueue,
         ILoggerFactory loggerFactory,
         CancellationToken ct)
@@ -39,32 +42,44 @@ public static class WebhookEndpoint
         if (!validation.IsValid)
            return Results.BadRequest("Missing or invalid webhook signature.");
 
-        WahaWebhookPayload? payload;
+        OpenWaWebhookPayload? payload;
         try
         {
-           payload = JsonSerializer.Deserialize<WahaWebhookPayload>(validation.BodyBytes!, JsonSerializerOptions.Web);
+           payload = JsonSerializer.Deserialize<OpenWaWebhookPayload>(validation.BodyBytes!, JsonSerializerOptions.Web);
         }
         catch (JsonException ex)
         {
-           logger.LogWarning(ex, "Received WAHA webhook with an invalid JSON payload");
+           logger.LogWarning(ex, "Received OpenWA webhook with an invalid JSON payload");
            return Results.BadRequest("Invalid webhook payload.");
         }
 
         if (payload is null)
            return Results.BadRequest("Webhook payload is required.");
 
-        logger.LogDebug("Received WAHA event: {Event} from session: {Session}", payload.Event, payload.Session);
+        logger.LogDebug("Received OpenWA event: {Event} from session: {Session}", payload.Event, payload.EffectiveSession);
 
-        if (payload.Event != "message")
-           return Results.Ok();
-
-        var message = payload.Payload?.Deserialize<WahaMessage>(JsonSerializerOptions.Web);
-        if (message is null || message.FromMe || string.IsNullOrWhiteSpace(message.Body))
+        if (!string.Equals(payload.Event, "message.received", StringComparison.OrdinalIgnoreCase)
+            && !string.Equals(payload.Event, "message", StringComparison.OrdinalIgnoreCase))
+        {
             return Results.Ok();
+        }
+
+        if (!idempotencyStore.TryRegister(payload.GetDedupeKey()))
+        {
+            return Results.Ok();
+        }
+
+        var message = payload.EventPayload?.Deserialize<OpenWaMessage>(JsonSerializerOptions.Web);
+        var phoneNumber = message?.GetSender();
+        var body = message?.GetBody();
+        if (message is null || message.FromMe == true || string.IsNullOrWhiteSpace(phoneNumber) || string.IsNullOrWhiteSpace(body))
+        {
+            return Results.Ok();
+        }
 
         // Enqueue for background processing — webhook must return 200 quickly.
         // The queue serialises processing, provides backpressure, and respects app shutdown.
-        messageQueue.TryEnqueue(message.From, message.Body);
+        messageQueue.TryEnqueue(phoneNumber, body);
 
         return Results.Ok();
     }

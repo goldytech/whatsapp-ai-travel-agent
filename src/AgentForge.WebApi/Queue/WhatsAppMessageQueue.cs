@@ -4,7 +4,7 @@ namespace AgentForge.WebApi.Queue;
 
 /// <summary>
 /// Bounded channel-backed queue for incoming WhatsApp messages.
-/// The webhook endpoint enqueues messages instantly (fast 200 OK to WAHA),
+/// The webhook endpoint enqueues messages instantly (fast 200 OK to the provider),
 /// while this background service processes them sequentially, one per-scope.
 /// Replaces the previous fire-and-forget <c>Task.Run</c> pattern, providing:
 /// - Backpressure (drops oldest when capacity is exceeded)
@@ -23,7 +23,7 @@ public sealed class WhatsAppMessageQueue(
             SingleWriter = false,
         });
 
-    /// <summary>Enqueues a message for processing. Never throws — drops silently when full.</summary>
+    /// <summary>Enqueues a message for processing. Never throws — logs and drops when full.</summary>
     public bool TryEnqueue(string phone, string body)
     {
         if (_channel.Writer.TryWrite((phone, body)))

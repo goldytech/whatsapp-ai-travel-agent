@@ -2,9 +2,8 @@ using System.ComponentModel.DataAnnotations;
 
 namespace AgentForge.WebApi.Services;
 
-public sealed class WahaWebhookSecurityOptions
+public sealed class OpenWaWebhookSecurityOptions
 {
     [Required]
-    [MinLength(32)]
     public string Secret { get; set; } = string.Empty;
 }

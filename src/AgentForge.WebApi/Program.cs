@@ -1,4 +1,5 @@
 using AgentForge.WebApi.Endpoints;
+using AgentForge.WebApi.Services;
 using AgentForge.WebApi.Queue;
 using AgentForge.WebApi.Scheduling;
 using AgentForge.Verticals.Abstractions;
@@ -19,21 +20,23 @@ builder.Services.AddSingleton<IVerticalPlugin>(verticalPlugin);
 builder.Services.AddSingleton<IVerticalDescriptor>(sp => sp.GetRequiredService<IVerticalPlugin>().CreateDescriptor(sp));
 verticalPlugin.RegisterCommonServices(builder.Services);
 builder.Services
-    .AddOptions<WahaWebhookSecurityOptions>()
-    .Configure(options => options.Secret = builder.Configuration["WAHA_WEBHOOK_SECRET"] ?? string.Empty)
+    .AddOptions<OpenWaWebhookSecurityOptions>()
+    .Configure(options => options.Secret = builder.Configuration["OPENWA_WEBHOOK_SECRET"] ?? string.Empty)
     .ValidateDataAnnotations()
-    .Validate(options => !string.IsNullOrWhiteSpace(options.Secret), "WAHA_WEBHOOK_SECRET is required.")
+    .Validate(options => !string.IsNullOrWhiteSpace(options.Secret), "OPENWA_WEBHOOK_SECRET is required.")
     .ValidateOnStart();
-builder.Services.AddSingleton<WahaWebhookSignatureValidator>();
+builder.Services.AddSingleton<OpenWaWebhookSignatureValidator>();
+builder.Services.AddSingleton<OpenWaWebhookIdempotencyStore>();
 
-// ─── WAHA HTTP Client ─────────────────────────────────────────────────────────
+// ─── OpenWA HTTP Client ───────────────────────────────────────────────────────
 // Resilience (retry=0, 5min total, circuit breaker) is set globally in ServiceDefaults.
 // Retries are intentionally disabled there to avoid duplicate WhatsApp messages.
-builder.Services.AddHttpClient<WahaApiClient>(client =>
+builder.Services.AddHttpClient<OpenWaApiClient>(client =>
 {
-    client.BaseAddress = new Uri("http://waha");
-    var apiKey = builder.Configuration["WAHA_API_KEY"] ?? string.Empty;
+    client.BaseAddress = new Uri("http://openwa");
+    var apiKey = builder.Configuration["OPENWA_API_KEY"] ?? string.Empty;
     client.DefaultRequestHeaders.Add("X-Api-Key", apiKey);
+    client.DefaultRequestHeaders.Add("X-API-KEY", apiKey);
 });
 
 // ─── MCP Server HTTP Client (Aspire service discovery) ────────────────────────
@@ -48,28 +51,7 @@ builder.Services.AddHttpClient("mcpserver", client =>
 builder.AddAzureChatCompletionsClient(connectionName: "ai-foundry")
     .AddChatClient("gpt-5.4-mini");
 
-// ─── WAHA Send Service (tier-aware strategy pattern) ─────────────────────────
-// CoreWahaSendService — free tier: sendImage falls back to text with linkPreview,
-//   sendList/sendButtons formatted as numbered text.
-// PlusWahaSendService — paid tier: sendImage uses native /api/sendImage;
-//   sendList/sendButtons attempt native APIs with text fallback on engine error.
-// Active implementation is selected based on WAHA_TIER env var (propagated from AppHost).
-builder.Services.AddKeyedSingleton<IWahaSendService, CoreWahaSendService>("Core");
-builder.Services.AddSingleton<CoreWahaSendService>(); // needed by PlusWahaSendService as fallback
-builder.Services.AddKeyedSingleton<IWahaSendService, PlusWahaSendService>("Plus");
-builder.Services.AddSingleton<IWahaSendService>(sp =>
-{
-    var tierStr = (builder.Configuration["WAHA_TIER"] ?? string.Empty).Trim();
-    var key = tierStr.Equals("Plus", StringComparison.OrdinalIgnoreCase) ? "Plus" : "Core";
-    if (!string.IsNullOrEmpty(tierStr) && !key.Equals(tierStr, StringComparison.OrdinalIgnoreCase))
-    {
-        sp.GetRequiredService<ILoggerFactory>()
-          .CreateLogger("WahaConfig")
-          .LogWarning("Unknown WAHA_TIER value '{Tier}' — defaulting to Core", tierStr);
-    }
-    return sp.GetRequiredKeyedService<IWahaSendService>(key);
-});
-builder.Services.AddSingleton<IMessageSender>(sp => sp.GetRequiredService<IWahaSendService>());
+builder.Services.AddSingleton<IMessageSender, OpenWaMessageSender>();
 
 builder.Services.AddSingleton<McpClientProvider>();
 builder.Services.AddSingleton<AgentSessionStore>();
@@ -95,7 +77,7 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {
     // Forward only XForwardedProto so Kestrel reports https when behind DevTunnel.
-    // XForwardedHost is intentionally omitted — PreviewEndpoint uses WEBHOOK_BASE_URL as the
+    // XForwardedHost is intentionally omitted — direct OpenWA media URLs use WEBHOOK_BASE_URL as the
     // authoritative public host, so a spoofed X-Forwarded-Host header has no effect.
     // KnownIPNetworks/KnownProxies are cleared because Azure DevTunnel uses dynamic IPs.
     // ForwardLimit = 1 prevents header-peeling attacks by accepting exactly one proxy hop.
@@ -112,6 +94,5 @@ app.UseForwardedHeaders();
 app.MapDefaultEndpoints();
 app.MapStaticAssets();
 app.MapWebhookEndpoints();
-app.MapPreviewEndpoint();
 
 app.Run();

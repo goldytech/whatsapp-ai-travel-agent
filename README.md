@@ -3,7 +3,7 @@
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![.NET 10](https://img.shields.io/badge/.NET-10-purple.svg)](https://dotnet.microsoft.com/)
 [![Aspire](https://img.shields.io/badge/Aspire-13.3-blueviolet.svg)](https://learn.microsoft.com/en-us/dotnet/aspire/)
-[![WAHA](https://img.shields.io/badge/WAHA-noweb-green.svg)](https://waha.devlike.pro/)
+[![OpenWA](https://img.shields.io/badge/OpenWA-self--hosted-green.svg)](https://www.open-wa.org/)
 [![GitHub Stars](https://img.shields.io/github/stars/goldytech/whatsapp-ai-travel-agent?style=social)](https://github.com/goldytech/whatsapp-ai-travel-agent)
 
 > ⭐ If this project saves you time or inspires your work, please **[give it a star](https://github.com/goldytech/whatsapp-ai-travel-agent)** — it helps others discover it and keeps the momentum going!
@@ -33,7 +33,7 @@ flowchart TD
     end
 
     subgraph Aspire["🚀 .NET Aspire — AppHost"]
-        WAHA["WAHA Container\nnoweb engine"]
+        OWA["OpenWA API + Dashboard"]
         DT["DevTunnel\npublic HTTPS webhook"]
 
         subgraph WebApi["AgentForge.WebApi  —  AI Gateway"]
@@ -41,7 +41,7 @@ flowchart TD
             Q["WhatsAppMessageQueue\nbounded Channel&lt;T&gt;"]
             ACS["AgentChatService\nclient-managed session history"]
             VAF["VerticalAgentFactory"]
-            WC["WahaApiClient"]
+            OWC["OpenWaApiClient"]
         end
 
         subgraph MCP["AgentForge.McpHost  —  Generic MCP Host"]
@@ -58,8 +58,8 @@ flowchart TD
         AI["GPT-5.4 mini\nAgent defined by active vertical"]
     end
 
-    WA -->|"sends message"| WAHA
-    WAHA -->|"webhook POST"| DT
+    WA -->|"sends message"| OWA
+    OWA -->|"webhook POST"| DT
     DT --> WH
     WH -->|"enqueue"| Q
     Q -->|"dequeue per message"| ACS
@@ -68,22 +68,22 @@ flowchart TD
     VP --> MT
     ACS <-->|"MCP StreamableHttp"| MT
     ACS <-->|"chat completions"| AI
-    ACS --> WC
-    WC -->|"POST /api/sendText"| WAHA
-    WAHA -->|"delivers reply"| WA
+    ACS --> OWC
+    OWC -->|"POST /api/sessions/default/messages/send-text"| OWA
+    OWA -->|"delivers reply"| WA
 ```
 
 ### Message Flow (step by step)
 
 1. Customer sends a WhatsApp message to the business number
-2. WAHA receives it and POSTs a webhook to the public DevTunnel URL
-3. `AgentForge.WebApi` verifies the WAHA HMAC signature and enqueues the message into a bounded `Channel<T>`
+2. OpenWA receives it and POSTs a webhook to the public DevTunnel URL
+3. `AgentForge.WebApi` verifies the OpenWA HMAC signature and enqueues the message into a bounded `Channel<T>`
 4. `WhatsAppMessageQueue` dequeues and calls `AgentChatService`
 5. `AgentChatService` restores the customer's conversation session (in-memory, keyed by phone number)
 6. `VerticalAgentFactory` initializes the agent using the active vertical descriptor and prompt
 7. `AgentForge.McpHost` loads tools/resources from the selected vertical assembly and executes requested MCP calls
 8. The active vertical shapes the conversation behavior, available tools, preview metadata, and scheduled action handling
-9. `WahaApiClient` delivers the WhatsApp-friendly reply back through WAHA
+9. `OpenWaApiClient` delivers the WhatsApp-friendly reply back through OpenWA
 
 Alongside the live chat, `SchedulerService` dispatches generic scheduled actions to the active vertical's `IScheduledActionHandler` implementation.
 
@@ -95,13 +95,13 @@ Alongside the live chat, `SchedulerService` dispatches generic scheduled actions
 |---|---|---|
 | **Runtime** | .NET 10 / C# 14 | All projects |
 | **Orchestration** | [.NET Aspire 13.3](https://learn.microsoft.com/en-us/dotnet/aspire/) | Service discovery, health checks, OpenTelemetry, DevTunnel, secrets |
-| **WhatsApp Gateway** | [WAHA](https://waha.devlike.pro/) (`devlikeapro/waha:noweb`) | Self-hosted WhatsApp HTTP API — no WhatsApp Business API fees |
+| **WhatsApp Gateway** | [OpenWA](https://www.open-wa.org/) (`ghcr.io/rmyndharis/openwa`) | Self-hosted WhatsApp HTTP API + dashboard |
 | **AI Agent Runtime** | [Microsoft Agents Framework 1.5](https://github.com/microsoft/agents) | `ChatClientAgent`, `AgentSession`, client-managed conversation history |
 | **LLM** | [Azure AI Foundry](https://azure.microsoft.com/en-us/products/ai-foundry/) (GPT-5.4 mini) | Chat completions backing the active vertical agent |
 | **AI Tool Protocol** | [Model Context Protocol 1.3](https://modelcontextprotocol.io/) | Structured HTTP-based tool server, auto-discovered by the agent |
 | **Resilience** | [Microsoft.Extensions.Http.Resilience](https://learn.microsoft.com/en-us/dotnet/core/resilience/) (Polly v8) | Circuit breaker, timeouts — retries intentionally disabled to prevent duplicate messages |
 | **Observability** | OpenTelemetry + Aspire Dashboard | Traces, structured logs, metrics across all services |
-| **Public Tunnel** | [Azure DevTunnel](https://learn.microsoft.com/en-us/azure/developer/dev-tunnels/) | Exposes the local webhook to the internet for WAHA to call |
+| **Public Tunnel** | [Azure DevTunnel](https://learn.microsoft.com/en-us/azure/developer/dev-tunnels/) | Exposes the local webhook to the internet for OpenWA to call |
 
 ---
 
@@ -157,13 +157,13 @@ whatsapp-ai-travel-agent/
 ├── src/
 │   ├── AgentForge.AppHost/          # .NET Aspire orchestration — defines all resources, dependencies, secrets
 │   ├── AgentForge.ServiceDefaults/  # Shared defaults — OpenTelemetry, health checks, HTTP resilience, service discovery
-│   ├── AgentForge.Hosting/          # Custom Aspire integration for the WAHA container (AddWaha extension)
+│   ├── AgentForge.Hosting/          # Custom Aspire integration for OpenWA resources (API, dashboard)
 │   ├── AgentForge.Verticals.Abstractions/ # Shared contracts for vertical metadata, messaging, and scheduled actions
 │   ├── AgentForge.Verticals.Hosting/ # Shared loader boundary used by both hosts to resolve the active vertical
 │   ├── AgentForge.McpHost/          # Generic MCP host — loads tools/resources from the active vertical plugin
 │   ├── AgentForge.WebApi/           # AI gateway — receives webhooks, runs the active vertical agent, sends WhatsApp replies
-│   │   ├── Endpoints/               #   WebhookEndpoint (/webhook), PreviewEndpoint (/preview)
-│   │   ├── Services/                #   AgentChatService, VerticalAgentFactory, WahaApiClient, WebhookRegistrationService, McpClientProvider
+│   │   ├── Endpoints/               #   WebhookEndpoint (/webhook)
+│   │   ├── Services/                #   AgentChatService, VerticalAgentFactory, OpenWaApiClient, WebhookRegistrationService, McpClientProvider
 │   │   ├── Queue/                   #   WhatsAppMessageQueue (bounded Channel<T> background service)
 │   │   └── Scheduling/              #   SchedulerService (generic scheduled action dispatcher)
 │   └── Verticals/
@@ -180,8 +180,8 @@ This repository is now structured so the **host runtime stays generic** while ea
 
 ### Generic platform pieces
 
-- `AgentForge.AppHost` — Aspire orchestration, secrets, WAHA container, DevTunnel, MCP Inspector, Compose publish flow
-- `AgentForge.WebApi` — webhook handling, session management, queueing, agent execution, WAHA sending, preview serving
+- `AgentForge.AppHost` — Aspire orchestration, secrets, OpenWA resources, DevTunnel, MCP Inspector, Compose publish flow
+- `AgentForge.WebApi` — webhook handling, session management, queueing, agent execution, OpenWA sending
 - `AgentForge.McpHost` — generic MCP host that loads tools/resources from the active vertical
 - `AgentForge.Verticals.Abstractions` — shared plugin contracts such as `IVerticalPlugin`, `IVerticalDescriptor`, `IVerticalMcpRegistrar`, and `IScheduledActionHandler`
 - `AgentForge.Verticals.Hosting` — default and `AssemblyLoadContext`-based plugin loaders
@@ -233,11 +233,11 @@ The result is the same generic WhatsApp host runtime with a different business-s
 | Requirement | Version | Notes |
 |---|---|---|
 | [.NET SDK](https://dotnet.microsoft.com/download) | 10.0+ | `dotnet --version` to verify |
-| [Docker Desktop](https://www.docker.com/products/docker-desktop/) | Latest | Required to run the WAHA container |
+| [Docker Desktop](https://www.docker.com/products/docker-desktop/) | Latest | Required to run the OpenWA API/dashboard plus provider-side Postgres/Redis |
 | [Aspire CLI](https://learn.microsoft.com/en-us/dotnet/aspire/fundamentals/aspire-sdk-tooling) | 13.3+ | `dotnet tool install -g aspire` |
 | [Azure DevTunnel CLI](https://learn.microsoft.com/en-us/azure/developer/dev-tunnels/get-started) | Latest | `devtunnel user login` before running |
 | [Azure AI Foundry](https://azure.microsoft.com/en-us/products/ai-foundry/) | — | Deployed GPT-5.4 mini (or compatible model) |
-| WAHA API Key | — | Any string — you set this yourself in secrets |
+| OpenWA API Key | — | Any string — you set this yourself in secrets |
 
 ---
 
@@ -255,19 +255,19 @@ cd whatsapp-ai-travel-agent
 All sensitive values are stored in .NET user secrets (never committed to source control).
 
 ```bash
-# Set WAHA credentials (choose your own values)
+# Set OpenWA credentials (choose your own values)
 cd src/AgentForge.AppHost
-dotnet user-secrets set "Parameters:wahaApiKey"            "your-api-key"
-dotnet user-secrets set "Parameters:wahaDashboardPassword" "your-dashboard-password"
-dotnet user-secrets set "Parameters:wahaSwaggerPassword"   "your-swagger-password"
-dotnet user-secrets set "Parameters:wahaWebhookSecret"     "generate-a-long-random-secret-here"
+dotnet user-secrets set "Parameters:openWaApiKey"          "your-api-key"
+dotnet user-secrets set "Parameters:openWaEncryptionKey"   "generate-a-long-random-secret"
+dotnet user-secrets set "Parameters:openWaWebhookSecret"   "generate-a-second-long-random-secret"
+dotnet user-secrets set "Parameters:openWaPostgresPassword" "set-a-strong-database-password"
 
 # Set Azure AI Foundry connection string
 # Format: Endpoint=https://<resource>.services.ai.azure.com/models;Key=<key>
 dotnet user-secrets set "ConnectionStrings:ai-foundry" "Endpoint=https://...;Key=...;"
 ```
 
-> **Tip:** The `wahaApiKey` protects the WAHA REST API. `wahaWebhookSecret` is a separate shared secret used for WAHA's HMAC-signed webhook delivery to `/webhook`. Keep them different.
+> **Tip:** `openWaApiKey` protects the OpenWA REST API. `openWaWebhookSecret` is a separate shared secret used for OpenWA's HMAC-signed webhook delivery to `/webhook`. Keep them different.
 
 ### 3. Log in to DevTunnel
 
@@ -282,54 +282,52 @@ aspire start
 ```
 
 Aspire will:
-- Pull and start the WAHA Docker container (first run downloads ~500 MB)
+- Pull and start the OpenWA API/dashboard plus provider-side Postgres/Redis containers
 - Start `AgentForge.McpHost` and `AgentForge.WebApi`
-- Create a DevTunnel and register the webhook URL with WAHA automatically
+- Create a DevTunnel and register the webhook URL with OpenWA automatically
 
 Open the Aspire Dashboard link printed in the terminal to monitor all services.
 
 ### 5. Connect WhatsApp (scan QR)
 
-Follow the **WAHA Dashboard Configuration** section below to link your WhatsApp account.
+Follow the **OpenWA Dashboard Configuration** section below to link your WhatsApp account.
 
 ---
 
-## WAHA Dashboard Configuration
+## OpenWA Dashboard Configuration
 
-WAHA exposes a management dashboard to connect your WhatsApp account.
+OpenWA exposes a management dashboard to connect your WhatsApp account.
 
 ### Access the dashboard
 
-1. In the Aspire Dashboard, find the **waha** container resource
-2. Click the **WAHA Dashboard** link (opens `http://localhost:<port>/dashboard`)
-3. Log in with the `wahaDashboardPassword` you configured in secrets
+1. In the Aspire Dashboard, find the **openwa-dashboard** container resource
+2. Click the **OpenWA Dashboard** link (opens `http://localhost:<port>/`)
+3. If the UI prompts for API access, enter the `openWaApiKey` you configured in secrets
 
 ### Create and start a session
 
-1. Click **New Session** and name it `default` (the code uses this name)
-2. Set the engine to **NOWEB** (browser-less, more reliable)
-3. Click **Start** — the session status will change to `STARTING`
+1. Open or create the `default` session (the code uses this session name)
+2. Start or resume the session if it is not already active
 
 ### Link your WhatsApp account
 
-1. Once status reaches `SCAN QR CODE`, click the QR icon
+1. Once status reaches `SCAN_QR`, click the QR icon
 2. On your phone: **WhatsApp → Linked Devices → Link a Device**
 3. Scan the QR code
-4. Status changes to `WORKING` — your bot is live ✅
+4. Status changes to `CONNECTED` — your bot is live ✅
 
 ### Session persistence
 
-The container uses a **Persistent lifetime** in Aspire, meaning it survives `aspire stop` / `aspire start` cycles. The WAHA session (WhatsApp auth) is stored in a Docker volume (`waha-sessions`). On restarts, `WebhookRegistrationService` automatically re-registers the webhook and starts the session if it was stopped.
+The API container uses a **Persistent lifetime** in Aspire, meaning it survives `aspire stop` / `aspire start` cycles. The OpenWA session data is stored in a Docker volume (`openwa-data`). On restarts, `WebhookRegistrationService` automatically re-registers the webhook and reconciles the `default` session state.
 
-> **Troubleshooting:** If the session shows `STOPPED`, the service starts it automatically on the next `aspire start`. You can also trigger it manually via the WAHA Dashboard → Session → Start.
+> **Troubleshooting:** If the session shows `DISCONNECTED` or `STOPPED`, the service attempts a restart on the next `aspire start`. You can also trigger it manually via the OpenWA dashboard.
 
 ### Webhook authenticity
 
-WAHA webhooks are configured with an HMAC secret and `AgentForge.WebApi` verifies every `/webhook` request against the raw request body before any JSON is parsed.
+OpenWA webhooks are configured with an HMAC secret and `AgentForge.WebApi` verifies every `/webhook` request against the raw request body before any JSON is parsed.
 
-- WAHA sends `X-Webhook-Hmac`
-- WAHA sends `X-Webhook-Hmac-Algorithm`
-- The app currently accepts `sha512` only, matching WAHA's documented behavior
+- OpenWA sends `X-OpenWA-Signature`
+- The app currently expects the standard `sha256=<hex>` signature format
 - Invalid or unsigned webhook requests are rejected before they reach the message queue
 
 The manual `POST /admin/register-webhook` endpoint is available in **Development** only.
@@ -377,13 +375,13 @@ Aspire parameters are used for **promptable runtime inputs**. Graph-shaping AppH
 
 | Secret / Env Var | Where set | Description |
 |---|---|---|
-| `Parameters:wahaApiKey` | `AgentForge.AppHost` user secrets | API key protecting the WAHA REST endpoints |
-| `Parameters:wahaDashboardPassword` | `AgentForge.AppHost` user secrets | WAHA Dashboard login password |
-| `Parameters:wahaSwaggerPassword` | `AgentForge.AppHost` user secrets | WAHA Swagger UI login password |
-| `Parameters:wahaWebhookSecret` | `AgentForge.AppHost` user secrets | Shared secret used by WAHA to HMAC-sign webhook POST bodies |
+| `Parameters:openWaApiKey` | `AgentForge.AppHost` user secrets | API key protecting the OpenWA REST endpoints |
+| `Parameters:openWaEncryptionKey` | `AgentForge.AppHost` user secrets | Provider-side encryption key for OpenWA runtime data |
+| `Parameters:openWaWebhookSecret` | `AgentForge.AppHost` user secrets | Shared secret used by OpenWA to HMAC-sign webhook POST bodies |
+| `Parameters:openWaPostgresPassword` | `AgentForge.AppHost` user secrets | Password for the Aspire-managed PostgreSQL instance used by OpenWA |
 | `ConnectionStrings:ai-foundry` | `AgentForge.AppHost` user secrets | Azure AI Foundry connection string (`Endpoint=...;Key=...`) |
-| `WahaTier` | `AgentForge.AppHost` user secrets | `Core` (default, free) or `Plus` (paid, enables native image/file/voice sending); kept as AppHost config because it also selects the WAHA container tier/image |
 | `WEBHOOK_BASE_URL` | Optional env var on `AgentForge.WebApi` | Override the webhook URL if not using DevTunnel |
+| `OPENWA_DASHBOARD_HOST_PORT` | Optional env var on published Compose deployments | Host port exposing the OpenWA dashboard (`2886` by default) |
 | `VERTICAL_ID` | Optional env var on `AgentForge.AppHost` | Active vertical ID for Compose publishing and runtime selection (`travel` by default) |
 | `VERTICAL_PLUGIN_ROOT` | Optional env var on `AgentForge.AppHost` | Container-side root path mounted into `AgentForge.WebApi` and `AgentForge.McpHost` during Compose publish (`/app/plugins` by default) |
 | `VERTICAL_PLUGIN_SOURCE_PATH` | Optional env var on `AgentForge.AppHost` | Host-side plugin folder to bind-mount during Compose publish (defaults to `../../artifacts/plugins/{VERTICAL_ID}` relative to `src/AgentForge.AppHost/`) |
@@ -410,7 +408,7 @@ If you want to preconfigure these overrides without using the dashboard, the can
 
 Legacy `VERTICAL_PLUGIN_PATH` and `CUSTOMER_CONFIG_PATH` environment variables are still accepted as compatibility fallbacks for local runs.
 
-The dashboard parameters are therefore an **optional override UX**, not a required setup step. In contrast, values like `VERTICAL_ID`, `VERTICAL_PLUGIN_SOURCE_PATH`, `CUSTOMER_CONFIG_SOURCE_PATH`, and `WahaTier` still shape the AppHost graph or publish output, so they remain standard AppHost configuration rather than dashboard-entered parameters.
+The dashboard parameters are therefore an **optional override UX**, not a required setup step. In contrast, values like `VERTICAL_ID`, `VERTICAL_PLUGIN_SOURCE_PATH`, and `CUSTOMER_CONFIG_SOURCE_PATH` still shape the AppHost graph or publish output, so they remain standard AppHost configuration rather than dashboard-entered parameters.
 
 ### Customer config pack layout
 
@@ -434,65 +432,13 @@ customer-config/
 
 ---
 
-## WAHA Plus (Optional — Enables Native Image Sending)
+## OpenWA Provider Notes
 
-By default the project runs on **WAHA Core** (free, `devlikeapro/waha:noweb`). Image messages fall back to a WhatsApp link-preview card — the URL is sent as text and WhatsApp renders a native preview.
+The runtime now uses a **single OpenWA integration path** instead of a Core/Plus split.
 
-To unlock **native image sending** (and file, voice, video support), upgrade to **WAHA Plus** ($19/month). No code changes are needed — the `IWahaSendService` strategy pattern switches implementations automatically based on the `WahaTier` config value.
-
-### Steps to enable WAHA Plus
-
-**1. Subscribe and obtain your Patron key**
-
-Go to [https://portal.devlike.pro](https://portal.devlike.pro), subscribe to the Plus plan, and copy your **Patron key** from the dashboard.
-
-**2. Authenticate with the WAHA private registry**
-
-```bash
-docker login -u devlikeapro -p <YOUR_PATRON_KEY>
-```
-
-This saves credentials to `~/.docker/config.json` — Docker Desktop will use them automatically.
-
-**3. Pull the WAHA Plus image**
-
-```bash
-# Apple Silicon (ARM64)
-docker pull devlikeapro/waha-plus:noweb-arm
-
-# Intel / AMD64
-docker pull devlikeapro/waha-plus:noweb
-```
-
-**4. Set the tier in Aspire user secrets**
-
-```bash
-cd src/AgentForge.AppHost
-dotnet user-secrets set "WahaTier" "Plus"
-```
-
-**5. Restart the application**
-
-```bash
-aspire start
-```
-
-Aspire will now pull and start `devlikeapro/waha-plus:noweb` instead of the free image, and `PlusWahaSendService` will handle all message sending with native Plus APIs.
-
-### Core vs Plus feature comparison
-
-| Feature | Core (free) | Plus ($19/mo) |
-|---|---|---|
-| `sendText` | ✅ | ✅ |
-| `sendText` with link preview | ✅ | ✅ |
-| `sendImage` | ❌ (link-preview fallback) | ✅ |
-| `sendFile` | ❌ | ✅ |
-| `sendVoice` | ❌ | ✅ |
-| `sendVideo` | ❌ | ✅ |
-| `sendList` / `sendButtons` | ❌ (text fallback) | ✅ (WEBJS/WPP only, not NOWEB) |
-| NOWEB engine (no Chrome) | ✅ | ✅ |
-
-> **Note:** `sendList` and `sendButtons` require the WEBJS or WPP engine even in Plus. This project uses NOWEB for its low memory footprint (~50 MB vs ~250 MB for Chromium-based engines) and stability. Interactive menus are rendered as numbered emoji text lists, which works well for the current travel vertical and similar service-selection flows.
+- text and image sending go through `OpenWaApiClient`
+- the `/preview` workaround is gone because provider-native media sending is now the default path
+- Aspire provisions provider-side PostgreSQL and Redis resources alongside the OpenWA API and dashboard
 
 ---
 
@@ -549,7 +495,7 @@ Replace the current in-memory `*Service` singletons (`TourService`, `Destination
 Add automated test coverage across all layers.
 
 - **Unit tests** — one xUnit project per layer (`AgentForge.McpHost.Tests`, `AgentForge.WebApi.Tests`)
-  - Mock `WahaApiClient`, `AgentChatService`, and MCP tool services
+  - Mock `OpenWaApiClient`, `AgentChatService`, and MCP tool services
 - **Integration tests** — use Aspire's `DistributedApplicationTestingBuilder`
   - Spin up the full AppHost in-process, send a webhook request, and assert the WhatsApp reply
 - Ref: https://learn.microsoft.com/dotnet/aspire/testing/overview
@@ -601,7 +547,7 @@ That guide now covers:
 
 - publishing vertical plugins and Compose artifacts
 - production deployment env vars and runtime checklist
-- public webhook and WAHA dashboard exposure
+- public webhook and OpenWA dashboard exposure
 - manual tunnel options for local demos
 - the repeatable Cloudflare-based Mac mini demo workflow
 
@@ -612,11 +558,11 @@ Detect the customer's language from their first message and instruct the active 
 - Update the system prompt to include the detected locale
 - Fallback to English for unsupported languages
 
-### 🛡️ Rate Limiting & WAHA Abuse Protection
+### 🛡️ Rate Limiting & Provider Abuse Protection
 
-Prevent message flooding at both the API and WAHA layers:
+Prevent message flooding at both the API and provider layers:
 - **ASP.NET Core rate limiting middleware** on the `/webhook` endpoint (per-IP, sliding window)
-- **WAHA-side throttling**: WAHA Pro supports send-rate limits — configure `WAHA_SEND_RATE_LIMIT` to avoid WhatsApp bans
+- **Provider-side throttling**: add OpenWA send-rate controls or queue limits to avoid WhatsApp bans
 - Per-phone-number cooldown in `WhatsAppMessageQueue` for repeat senders
 
 ### 📊 Analytics & Reporting
@@ -655,7 +601,7 @@ Contributions are welcome! Please follow these steps:
 - Services are registered as `Singleton` or `Scoped` — never `Transient` for stateful classes
 - HTTP clients use `IHttpClientFactory` (typed or named) — no `new HttpClient()`
 - Background work uses `Channel<T>` or `IHostedService` — no `_ = Task.Run(...)`
-- Retries are intentionally disabled on `WahaApiClient` — retrying a `sendText` sends duplicate WhatsApp messages
+- Retries are intentionally disabled on `OpenWaApiClient` — retrying a send request can produce duplicate WhatsApp messages
 
 ---
 
